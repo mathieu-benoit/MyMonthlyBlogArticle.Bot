@@ -36,11 +36,11 @@
       "type": "string"
     },
     "appId": {
-      "defaultValue": "74f30abd-4d41-4230-9d11-c371143c96e8",
+      "defaultValue": "",
       "type": "string"
     },
     "appSecret": {
-      "defaultValue": "7{[XJb+E._HO6:Pv",
+      "defaultValue": "",
       "type": "string"
     },
     "azureWebJobsBotFrameworkDirectLineSecret": {
