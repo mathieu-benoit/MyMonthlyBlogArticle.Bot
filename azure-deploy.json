@@ -54,16 +54,6 @@
       "defaultValue": "eastus",
       "type": "string"
     },
-    "serverFarmSku": {
-      "defaultValue": {
-        "name": "S1",
-        "tier": "Standard",
-        "size": "S1",
-        "family": "S",
-        "capacity": 1
-      },
-      "type": "object"
-    },
     "endpoint": {
       "defaultValue": "",
       "type": "string"
@@ -108,7 +98,9 @@
       "designer": "[concat('https://', variables('siteHost'), '/api/messages')]",
       "function": "[concat('https://', variables('siteHost'), '/api/messages?code=', 'NYI')]"
     },
-    "botEndpoint": "[variables('botEndpointConfig')[parameters('kind')]]"
+    "botEndpoint": "[variables('botEndpointConfig')[parameters('kind')]]",
+    "gitRepoUrl": "https://github.com/mathieu-benoit/MyMonthlyBlogArticle.Bot",
+    "gitBranch": "master"
   },
   "resources": [
     {
@@ -118,17 +110,17 @@
       "location": "[parameters('location')]",
       "properties": {
         "accountType": "[variables('storageAccountType')]"
-      },
-      "condition": "[parameters('createNewStorage')]"
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "sku": "[parameters('serverFarmSku')]",
       "name": "[parameters('serverFarmName')]",
       "apiVersion": "2016-09-01",
       "location": "[parameters('serverFarmLocation')]",
       "properties": {
-        "name": "[parameters('serverFarmName')]"
+        "name": "[parameters('serverFarmName')]",
+        "computeMode": "Dynamic",
+        "sku": "Dynamic"
       }
     },
     {
@@ -245,7 +237,21 @@
           }
         }
       },
-      "resources": [],
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[variables('gitRepoUrl')]",
+            "branch": "[variables('gitBranch')]",
+            "IsManualIntegration": true
+          }
+        },
+      ],
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
         "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
