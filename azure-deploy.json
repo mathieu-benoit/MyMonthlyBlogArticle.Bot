@@ -54,6 +54,16 @@
       "defaultValue": "eastus",
       "type": "string"
     },
+    "serverFarmSku": {
+      "defaultValue": {
+        "name": "S1",
+        "tier": "Standard",
+        "size": "S1",
+        "family": "S",
+        "capacity": 1
+      },
+      "type": "object"
+    },
     "endpoint": {
       "defaultValue": "",
       "type": "string"
@@ -114,13 +124,12 @@
     },
     {
       "type": "Microsoft.Web/serverfarms",
+      "sku": "[parameters('serverFarmSku')]",
       "name": "[parameters('serverFarmName')]",
       "apiVersion": "2016-09-01",
       "location": "[parameters('serverFarmLocation')]",
       "properties": {
-        "name": "[parameters('serverFarmName')]",
-        "computeMode": "Dynamic",
-        "sku": "Dynamic"
+        "name": "[parameters('serverFarmName')]"
       }
     },
     {
