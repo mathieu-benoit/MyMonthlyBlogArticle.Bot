@@ -24,15 +24,7 @@
     "siteName": {
       "type": "string"
     },
-    "createNewStorage": {
-      "defaultValue": true,
-      "type": "bool"
-    },
     "storageAccountName": {
-      "type": "string"
-    },
-    "storageAccountResourceId": {
-      "defaultValue": "",
       "type": "string"
     },
     "appId": {
@@ -58,10 +50,6 @@
     "serverFarmName": {
       "type": "string"
     },
-    "createServerFarm": {
-      "defaultValue": true,
-      "type": "bool"
-    },
     "serverFarmLocation": {
       "defaultValue": "eastus",
       "type": "string"
@@ -83,7 +71,7 @@
   },
   "variables": {
     "storageAccountType": "Standard_LRS",
-    "storageAccountId": "[if(or(parameters('createNewStorage'), equals('', parameters('storageAccountResourceId'))), resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), parameters('storageAccountResourceId'))]",
+    "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
     "insightsName": "[concat(parameters('botId'), substring(uniqueString(resourceGroup().id), 0, 6))]",
     "config": {
       "scratch": {
@@ -141,8 +129,7 @@
       "location": "[parameters('serverFarmLocation')]",
       "properties": {
         "name": "[parameters('serverFarmName')]"
-      },
-      "condition": "[parameters('createServerFarm')]"
+      }
     },
     {
       "type": "Microsoft.Insights/components",
