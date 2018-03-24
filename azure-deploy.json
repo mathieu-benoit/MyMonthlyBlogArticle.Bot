@@ -9,10 +9,6 @@
     "botId": {
       "type": "string"
     },
-    "location": {
-      "defaultValue": "East US",
-      "type": "string"
-    },
     "sku": {
       "defaultValue": "F0",
       "type": "string"
@@ -39,30 +35,12 @@
       "defaultValue": "",
       "type": "string"
     },
-    "useAppInsights": {
-      "defaultValue": true,
-      "type": "bool"
-    },
     "appInsightsLocation": {
       "defaultValue": "East US",
       "type": "string"
     },
     "serverFarmName": {
       "type": "string"
-    },
-    "serverFarmLocation": {
-      "defaultValue": "eastus",
-      "type": "string"
-    },
-    "serverFarmSku": {
-      "defaultValue": {
-        "name": "Y1",
-        "tier": "Dynamic",
-        "size": "Y1",
-        "family": "Y",
-        "capacity": 0
-      },
-      "type": "object"
     },
     "endpoint": {
       "defaultValue": "",
@@ -117,19 +95,20 @@
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('storageAccountName')]",
       "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "accountType": "[variables('storageAccountType')]"
       }
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "sku": "[parameters('serverFarmSku')]",
+      "apiVersion": "2015-08-01",
       "name": "[parameters('serverFarmName')]",
-      "apiVersion": "2016-09-01",
-      "location": "[parameters('serverFarmLocation')]",
+      "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('serverFarmName')]"
+        "name": "[parameters('serverFarmName')]",
+        "computeMode": "Dynamic",
+        "sku": "Dynamic"
       }
     },
     {
@@ -144,17 +123,16 @@
       },
       "properties": {
         "ApplicationId": "[parameters('botId')]"
-      },
-      "condition": "[parameters('useAppInsights')]"
+      }
     },
     {
       "type": "Microsoft.Web/sites",
       "kind": "[variables('botAppKind')]",
       "name": "[parameters('siteName')]",
       "apiVersion": "2015-08-01",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('siteName')]",
+        "name": "[resourceGroup().location]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]",
         "siteConfig": {
           "appSettings": [
@@ -259,7 +237,7 @@
             "branch": "[variables('gitBranch')]",
             "IsManualIntegration": true
           }
-        },
+        }
       ],
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
