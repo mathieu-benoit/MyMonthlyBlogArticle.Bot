@@ -2,55 +2,34 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "botEnv": {
-      "defaultValue": "prod",
+    "siteName": {
       "type": "string"
     },
-    "botId": {
+    "appId": {
+      "type": "string"
+    },
+    "appSecret": {
+      "type": "string"
+    },
+    "botEnv": {
+      "defaultValue": "prod",
       "type": "string"
     },
     "sku": {
       "defaultValue": "F0",
       "type": "string"
     },
-    "kind": {
-      "defaultValue": "function",
-      "type": "string"
-    },
-    "siteName": {
-      "type": "string"
-    },
-    "storageAccountName": {
-      "type": "string"
-    },
-    "appId": {
-      "defaultValue": "",
-      "type": "string"
-    },
-    "appSecret": {
-      "defaultValue": "",
-      "type": "string"
-    },
-    "azureWebJobsBotFrameworkDirectLineSecret": {
-      "defaultValue": "",
-      "type": "string"
-    },
     "appInsightsLocation": {
       "defaultValue": "East US",
-      "type": "string"
-    },
-    "serverFarmName": {
-      "type": "string"
-    },
-    "endpoint": {
-      "defaultValue": "",
       "type": "string"
     }
   },
   "variables": {
     "storageAccountType": "Standard_LRS",
-    "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-    "insightsName": "[concat(parameters('botId'), substring(uniqueString(resourceGroup().id), 0, 6))]",
+    "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+    "insightsName": "[concat(parameters('siteName'), substring(uniqueString(resourceGroup().id), 0, 6))]",
+    "serverFarmName": "[parameters('siteName')]",
+    "storageAccountName": "[parameters('siteName')]",
     "config": {
       "scratch": {
         "stateEndpoint": "https://intercom-api-scratch.azurewebsites.net",
@@ -71,29 +50,16 @@
         "openIdMetadata": ""
       }
     },
-    "botAppKinds": {
-      "function": "functionapp",
-      "sdk": "app",
-      "designer": "app",
-      "bot": ""
-    },
-    "botAppKind": "[variables('botAppKinds')[parameters('kind')]]",
     "currentConfig": "[variables('config')[toLower(parameters('botEnv'))]]",
     "siteHost": "[concat(parameters('siteName'), '.azurewebsites.net')]",
-    "botEndpointConfig": {
-      "bot": "[parameters('endpoint')]",
-      "sdk": "[concat('https://', variables('siteHost'), '/api/messages')]",
-      "designer": "[concat('https://', variables('siteHost'), '/api/messages')]",
-      "function": "[concat('https://', variables('siteHost'), '/api/messages?code=', 'NYI')]"
-    },
-    "botEndpoint": "[variables('botEndpointConfig')[parameters('kind')]]",
+    "botEndpoint": "[concat('https://', variables('siteHost'), '/api/messages?code=', 'NYI')]",
     "gitRepoUrl": "https://github.com/mathieu-benoit/MyMonthlyBlogArticle.Bot",
     "gitBranch": "master"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageAccountName')]",
+      "name": "[variables('storageAccountName')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -102,11 +68,11 @@
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2015-08-01",
-      "name": "[parameters('serverFarmName')]",
+      "apiVersion": "2015-04-01",
+      "name": "[variables('serverFarmName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('serverFarmName')]",
+        "name": "[variables('serverFarmName')]",
         "computeMode": "Dynamic",
         "sku": "Dynamic"
       }
@@ -118,31 +84,31 @@
       "apiVersion": "2014-04-01",
       "location": "[parameters('appInsightsLocation')]",
       "tags": {
-        "[concat('hidden-link:', resourceId('Microsoft.BotService/botServices/', parameters('botId')))]": "Resource",
+        "[concat('hidden-link:', resourceId('Microsoft.BotService/botServices/', parameters('siteName')))]": "Resource",
         "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', parameters('siteName')))]": "Resource"
       },
       "properties": {
-        "ApplicationId": "[parameters('botId')]"
+        "ApplicationId": "[parameters('siteName')]"
       }
     },
     {
       "type": "Microsoft.Web/sites",
-      "kind": "[variables('botAppKind')]",
+      "kind": "functionapp",
       "name": "[parameters('siteName')]",
       "apiVersion": "2015-08-01",
       "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[resourceGroup().location]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]",
+        "name": "[parameters('siteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
         "siteConfig": {
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
             },
             {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
             },
             {
               "name": "WEBSITE_NODE_DEFAULT_VERSION",
@@ -154,7 +120,7 @@
             },
             {
               "name": "BotId",
-              "value": "[parameters('botId')]"
+              "value": "[parameters('siteName')]"
             },
             {
               "name": "MicrosoftAppId",
@@ -194,15 +160,11 @@
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listkeys(variables('storageAccountId'), '2015-05-01-preview').key1,';')]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
               "value": "[parameters('siteName')]"
-            },
-            {
-              "name": "AzureWebJobsBotFrameworkDirectLineSecret",
-              "value": "[parameters('azureWebJobsBotFrameworkDirectLineSecret')]"
             },
             {
               "name": "AzureWebJobsBotFrameworkDirectLineEndpoint",
@@ -240,8 +202,8 @@
         }
       ],
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
       ]
     },
     {
@@ -249,21 +211,21 @@
       "sku": {
         "name": "[parameters('sku')]"
       },
-      "kind": "[parameters('kind')]",
-      "name": "[parameters('botId')]",
+      "kind": "function",
+      "name": "[parameters('siteName')]",
       "apiVersion": "2017-12-01",
       "location": "global",
       "properties": {
-        "name": "[parameters('botId')]",
-        "displayName": "[parameters('botId')]",
+        "name": "[parameters('siteName')]",
+        "displayName": "[parameters('siteName')]",
         "endpoint": "[variables('botEndpoint')]",
         "msaAppId": "[parameters('appId')]",
         "developerAppInsightsApplicationId": "[variables('insightsName')]",
         "developerAppInsightKey": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
         "[resourceId('Microsoft.Web/sites/', parameters('siteName'))]",
         "[resourceId('microsoft.insights/components/', variables('insightsName'))]"
       ]
