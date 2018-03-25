@@ -1,5 +1,11 @@
 # MyMonthlyBlogArticle.Bot
 
+# Prerequesities
+
+You need to register first your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
+
+TIPS: you could put these values in [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis) for more security and to be able to automate more.
+
 # Deploy
 
 ## Deploy via the Azure portal
@@ -10,12 +16,12 @@
 
 ```
 RG=<your-existing-resource-group-name>
-SiteName=<site-name>
+BotName=<bot-name>
 AppId=<your-app-guid>
 AppSecret=<your-app-secret>
 
 az group deployment create \
   -g $RG \
   --template-file azure-deploy.json 
-  --parameters siteName=$SiteName appSecret=$AppSecret appId=$AppId
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId
 ```

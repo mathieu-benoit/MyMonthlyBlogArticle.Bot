@@ -2,7 +2,7 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "siteName": {
+    "botName": {
       "type": "string"
     },
     "appId": {
@@ -27,9 +27,9 @@
   "variables": {
     "storageAccountType": "Standard_LRS",
     "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-    "insightsName": "[parameters('siteName')]",
-    "serverFarmName": "[parameters('siteName')]",
-    "storageAccountName": "[parameters('siteName')]",
+    "insightsName": "[parameters('botName')]",
+    "serverFarmName": "[parameters('botName')]",
+    "storageAccountName": "[parameters('botName')]",
     "config": {
       "scratch": {
         "stateEndpoint": "https://intercom-api-scratch.azurewebsites.net",
@@ -51,7 +51,7 @@
       }
     },
     "currentConfig": "[variables('config')[toLower(parameters('botEnv'))]]",
-    "siteHost": "[concat(parameters('siteName'), '.azurewebsites.net')]",
+    "siteHost": "[concat(parameters('botName'), '.azurewebsites.net')]",
     "botEndpoint": "[concat('https://', variables('siteHost'), '/api/messages?code=', 'NYI')]",
     "gitRepoUrl": "https://github.com/mathieu-benoit/MyMonthlyBlogArticle.Bot",
     "gitBranch": "master"
@@ -84,21 +84,21 @@
       "apiVersion": "2014-04-01",
       "location": "[parameters('appInsightsLocation')]",
       "tags": {
-        "[concat('hidden-link:', resourceId('Microsoft.BotService/botServices/', parameters('siteName')))]": "Resource",
-        "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', parameters('siteName')))]": "Resource"
+        "[concat('hidden-link:', resourceId('Microsoft.BotService/botServices/', parameters('botName')))]": "Resource",
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', parameters('botName')))]": "Resource"
       },
       "properties": {
-        "ApplicationId": "[parameters('siteName')]"
+        "ApplicationId": "[parameters('botName')]"
       }
     },
     {
       "type": "Microsoft.Web/sites",
       "kind": "functionapp",
-      "name": "[parameters('siteName')]",
+      "name": "[parameters('botName')]",
       "apiVersion": "2015-08-01",
       "location": "[resourceGroup().location]",
       "properties": {
-        "name": "[parameters('siteName')]",
+        "name": "[parameters('botName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
         "siteConfig": {
           "appSettings": [
@@ -120,7 +120,7 @@
             },
             {
               "name": "BotId",
-              "value": "[parameters('siteName')]"
+              "value": "[parameters('botName')]"
             },
             {
               "name": "MicrosoftAppId",
@@ -164,7 +164,7 @@
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
-              "value": "[parameters('siteName')]"
+              "value": "[parameters('botName')]"
             },
             {
               "name": "AzureWebJobsBotFrameworkDirectLineEndpoint",
@@ -192,7 +192,7 @@
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('botName'))]"
           ],
           "properties": {
             "RepoUrl": "[variables('gitRepoUrl')]",
@@ -212,13 +212,13 @@
         "name": "[parameters('sku')]"
       },
       "kind": "function",
-      "name": "[parameters('siteName')]",
+      "name": "[parameters('botName')]",
       "apiVersion": "2017-12-01",
       "location": "global",
       "properties": {
-        "name": "[parameters('siteName')]",
-        "displayName": "[parameters('siteName')]",
-        "description": "[parameters('siteName')]",
+        "name": "[parameters('botName')]",
+        "displayName": "[parameters('botName')]",
+        "description": "[parameters('botName')]",
         "endpoint": "[variables('botEndpoint')]",
         "msaAppId": "[parameters('appId')]",
         "developerAppInsightsApplicationId": "[variables('insightsName')]",
@@ -235,7 +235,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
-        "[resourceId('Microsoft.Web/sites/', parameters('siteName'))]",
+        "[resourceId('Microsoft.Web/sites/', parameters('botName'))]",
         "[resourceId('microsoft.insights/components/', variables('insightsName'))]"
       ]
     }
