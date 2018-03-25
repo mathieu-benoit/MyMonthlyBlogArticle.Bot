@@ -27,7 +27,7 @@
   "variables": {
     "storageAccountType": "Standard_LRS",
     "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-    "insightsName": "[concat(parameters('siteName'), substring(uniqueString(resourceGroup().id), 0, 6))]",
+    "insightsName": "[parameters('siteName')]",
     "serverFarmName": "[parameters('siteName')]",
     "storageAccountName": "[parameters('siteName')]",
     "config": {
@@ -218,10 +218,19 @@
       "properties": {
         "name": "[parameters('siteName')]",
         "displayName": "[parameters('siteName')]",
+        "description": "[parameters('siteName')]",
         "endpoint": "[variables('botEndpoint')]",
         "msaAppId": "[parameters('appId')]",
         "developerAppInsightsApplicationId": "[variables('insightsName')]",
-        "developerAppInsightKey": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
+        "developerAppInsightKey": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]",
+        "enabledChannels": [
+          "webchat",
+          "directline"
+        ],
+        "configuredChannels": [
+          "webchat",
+          "directline"
+        ]
       },
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
