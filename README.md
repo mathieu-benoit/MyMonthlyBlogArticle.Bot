@@ -25,3 +25,6 @@ az group deployment create \
   --template-file azure-deploy.json 
   --parameters botName=$BotName appSecret=$AppSecret appId=$AppId
 ```
+# Manual setup
+
+You could enable the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-manage-analytics).

@@ -115,6 +115,10 @@
               "value": "6.9.1"
             },
             {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey"
+            },
+            {
               "name": "BotEnv",
               "value": "[parameters('botEnv')]"
             },
@@ -178,7 +182,7 @@
           "cors": {
             "allowedOrigins": [
               "https://botservice.hosting.portal.azure.net",
-              "https://hosting.onecloud.azure-test.net/",
+              "https://hosting.onecloud.azure-test.net",
               "https://functions.azure.com",
               "https://functions-staging.azure.com",
               "https://functions-next.azure.com"
@@ -217,7 +221,7 @@
       "location": "global",
       "properties": {
         "name": "[parameters('botName')]",
-        "displayName": "[parameters('botName')]",
+        "displayName": "Microsoft Azure News & Updates",
         "description": "[parameters('botName')]",
         "endpoint": "[variables('botEndpoint')]",
         "msaAppId": "[parameters('appId')]",
