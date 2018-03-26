@@ -4,7 +4,7 @@
 
 You need to register first your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
 
-TIPS: you could put these values in [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis) for more security and to be able to automate more.
+TIPS: you could put these values in [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis) for more security and to be able to automate more. You could then [access the key/values pairs by modifying the ARM Template accordingly](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-keyvault-parameter).
 
 # Deploy
 
@@ -25,6 +25,6 @@ az group deployment create \
   --template-file azure-deploy.json 
   --parameters botName=$BotName appSecret=$AppSecret appId=$AppId
 ```
-# Manual setup
+# Manual setup once deployed
 
 You could enable the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-manage-analytics).
