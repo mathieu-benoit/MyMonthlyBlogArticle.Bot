@@ -35,7 +35,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                     await Conversation.SendAsync(activity, () => new AzureNewsAndUpdatesDialog());
                     break;
                 case ActivityTypes.ConversationUpdate:
-                    log.Info($"ActivityTypes.Message");
+                    log.Info($"ActivityTypes.ConversationUpdate");
                     var client = new ConnectorClient(new Uri(activity.ServiceUrl));
                     IConversationUpdateActivity update = activity;
                     if (update.MembersAdded.Any())
