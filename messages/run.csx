@@ -1,5 +1,5 @@
 #r "Newtonsoft.Json"
-#load "EchoDialog.csx"
+#load "AzureNewsAndUpdatesDialog.csx"
 
 using System;
 using System.Net;
