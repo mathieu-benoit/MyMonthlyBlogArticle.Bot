@@ -11,6 +11,9 @@
     "appSecret": {
       "type": "string"
     },
+    "rssFeedsTableStorageConnectionString": {
+      "type": "string"
+    }
     "botEnv": {
       "defaultValue": "prod",
       "type": "string"
@@ -177,6 +180,10 @@
             {
               "name": "WEBSITE_USE_PLACEHOLDER",
               "value": "0"
+            },
+            {
+              "name": "RssFeedsTableStorageConnectionString",
+              "value": "[parameters('rssFeedsTableStorageConnectionString')]"
             }
           ],
           "cors": {
