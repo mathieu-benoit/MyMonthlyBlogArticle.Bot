@@ -1,9 +1,14 @@
+#r "Microsoft.WindowsAzure.Storage"
+
+#load "FeedEntity.csx"
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
+using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage;
 
-// For more information about this template visit http://aka.ms/azurebots-csharp-basic
 [Serializable]
 public class AzureNewsAndUpdatesDialog : IDialog<object>
 {
@@ -27,10 +32,15 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
     public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
     {
         var activity = await argument;
-        // calculate something for us to return
-        int length = (activity.Text ?? string.Empty).Length;
-        // return our reply to the user
-        await context.PostAsync($"You sent {activity.Text} which was {length} characters");
+
+        var storageAccountConnectionString = Environment.GetEnvironmentVariable("RssFeedsTableStorageConnectionString");
+        var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
+        var tableClient = storageAccount.CreateCloudTableClient();
+        var table = tableClient.GetTableReference("RssFeeds");
+        var query = new TableQuery<FeedEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}"));
+        var results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
+
+        await context.PostAsync($"{results.Count()} has been found.");
         context.Wait(MessageReceivedAsync);
     }
 }
