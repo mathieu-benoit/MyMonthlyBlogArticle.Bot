@@ -57,13 +57,13 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
 
     private string GenerateFilterCondition(IMessageActivity activity)
     {
-        if(PartitionKeyRegex.IsMatch(activity.Text))
-        {
-            return TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}");
-        }
-        else if(DateRegex.IsMatch(activity.Text))
+        if(DateRegex.IsMatch(activity.Text))
         {
             return TableQuery.GenerateFilterCondition("Date", QueryComparisons.Equal, $"{activity.Text}");
+        }
+        else if(PartitionKeyRegex.IsMatch(activity.Text))
+        {
+            return TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}");
         }
         return string.Empty;
     }
