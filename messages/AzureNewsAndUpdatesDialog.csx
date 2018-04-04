@@ -3,11 +3,15 @@
 #load "FeedEntity.csx"
 
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
+
+static Regex PartitionKeyRegex = new Regex(@"(\d{4}\-\d{2})");
+static Regex DateRegex = new Regex(@"(\d{4}\-\d{2}\-\d{2})");
 
 [Serializable]
 public class AzureNewsAndUpdatesDialog : IDialog<object>
@@ -36,17 +40,31 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
         var tableClient = storageAccount.CreateCloudTableClient();
         var table = tableClient.GetTableReference("RssFeeds");
-        var query = new TableQuery<FeedEntity>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}"));
+
+        var query = new TableQuery<FeedEntity>().Where(GenerateFilterCondition(activity));
         var results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
         var resultsCount = results.Count();
         if(resultsCount > 0)
         {
-            await context.PostAsync($"{resultsCount} has been found.");
+            await context.PostAsync($"{resultsCount} results found.");
         }
         else
         {
-            await context.PostAsync($"No results found. You could search: **by month**: 2018-04; **by date**: 2018-04-03; or **by text**: Functions, API Management, VSTS, DevOps, etc.");
+            await context.PostAsync($"No results found. You could search: **by month**: {DateTime.UtcNow.ToString("yyyy-MM")}; **by date**: {DateTime.UtcNow.ToString("yyyy-MM-dd")}; or **by text**: Functions, API Management, VSTS, DevOps, etc.");
         }
         context.Wait(MessageReceivedAsync);
+    }
+
+    private string GenerateFilterCondition(IMessageActivity activity)
+    {
+        if(PartitionKeyRegex.IsMatch(activity.Text))
+        {
+            return TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}");
+        }
+        else if(DateRegex.IsMatch(activity.Text))
+        {
+            return TableQuery.GenerateFilterCondition("Date", QueryComparisons.Equal, $"{activity.Text}");
+        }
+        return string.Empty;
     }
 }
