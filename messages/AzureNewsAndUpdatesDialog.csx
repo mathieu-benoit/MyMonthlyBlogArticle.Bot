@@ -3,6 +3,7 @@
 #load "FeedEntity.csx"
 
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
@@ -46,11 +47,17 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         var resultsCount = results.Count();
         if(resultsCount > 0)
         {
-            await context.PostAsync($"{resultsCount} results found.");
+            var builder = new StringBuilder();
+            foreach(var feed in results)
+            {
+                builder.Append($"\n[{feed.Date}]({feed.Link}) - {feed.Title}");
+            }
+
+            await context.PostAsync($"{builder.ToString()}");
         }
         else
         {
-            await context.PostAsync($"No results found. You could search: **by month**: {DateTime.UtcNow.ToString("yyyy-MM")}; **by date**: {DateTime.UtcNow.ToString("yyyy-MM-dd")}; or **by text**: Functions, API Management, VSTS, DevOps, etc.");
+            await context.PostAsync($"No results found. You could search: \n* by month: {DateTime.UtcNow.ToString("yyyy-MM")} \n* by date: {DateTime.UtcNow.ToString("yyyy-MM-dd")} \n* by text: Functions, API Management, VSTS, DevOps, etc.");
         }
         context.Wait(MessageReceivedAsync);
     }
