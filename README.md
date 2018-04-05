@@ -1,8 +1,10 @@
 # MyMonthlyBlogArticle.Bot
 
+This repository contains all the Bot Service and Azure Functions code and deployment setup related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html).
+
 ![Flow & Architecture diagram](./FlowAndArchitecture.PNG "Flow & Architecture diagram")
 
-# Prerequesities
+# Prerequisities
 
 You need to register first your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
 
