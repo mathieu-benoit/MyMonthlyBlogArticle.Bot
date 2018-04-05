@@ -235,12 +235,10 @@
         "developerAppInsightsApplicationId": "[variables('insightsName')]",
         "developerAppInsightKey": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]",
         "enabledChannels": [
-          "webchat",
-          "directline"
+          "webchat"
         ],
         "configuredChannels": [
-          "webchat",
-          "directline"
+          "webchat"
         ]
       },
       "dependsOn": [
