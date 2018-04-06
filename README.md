@@ -21,13 +21,14 @@ _TIPS: you could put these values in [Azure Key Vault](https://docs.microsoft.co
 ```
 RG=<your-existing-resource-group-name>
 BotName=<bot-name>
-AppId=<your-app-guid>
-AppSecret=<your-app-secret>
+AppId=<app-guid>
+AppSecret=<app-secret>
+RssFeedsTableStorageConnectionString=<connection-string-of-the-azure-table-storage-containing-the-rss-feeds-table>
 
 az group deployment create \
   -g $RG \
   --template-file azure-deploy.json 
-  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
 ```
 # Manual setup once deployed
 
