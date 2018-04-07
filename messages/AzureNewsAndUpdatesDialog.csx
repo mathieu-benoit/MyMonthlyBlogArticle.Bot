@@ -48,6 +48,7 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         if(resultsCount > 0)
         {
             var builder = new StringBuilder();
+            builder.Append($"{resultsCount} results found:");
             foreach(var feed in results)
             {
                 builder.Append($"\n[{feed.Date}]({feed.Link}) - {feed.Title}");
