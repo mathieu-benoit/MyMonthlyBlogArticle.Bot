@@ -31,7 +31,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             switch (activity.GetActivityType())
             {
                 case ActivityTypes.Message:
-                    log.Info($"ActivityTypes.Message");
+                    log.Info($"ActivityTypes.Message - {activity.Text}");
                     await Conversation.SendAsync(activity, () => new AzureNewsAndUpdatesDialog());
                     break;
                 case ActivityTypes.ConversationUpdate:
