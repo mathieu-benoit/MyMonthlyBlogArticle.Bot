@@ -41,10 +41,18 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
         var tableClient = storageAccount.CreateCloudTableClient();
         var table = tableClient.GetTableReference("RssFeeds");
-
-        var query = new TableQuery<FeedEntity>().Where(GenerateFilterCondition(activity));
-        var results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
-        var resultsCount = results.Count();
+        var filterCondition = GenerateFilterCondition(activity);
+        var query = new TableQuery<FeedEntity>().Where(filterCondition);
+        IEnumerable<FeedEntity> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
+        if(string.IsNullOrEmpty(filterCondition))
+        {
+            results = from feedEntity 
+                        in results 
+                        where feedEntity.Title.Contains(activity.Text)
+                            || feedEntity.Link.Contains(activity.Text.Replace(" ", string.Empty).ToLower())
+                        select feedEntity;
+        }
+        var resultsCount = results.Count(); 
         if(resultsCount > 0)
         {
             var builder = new StringBuilder();
