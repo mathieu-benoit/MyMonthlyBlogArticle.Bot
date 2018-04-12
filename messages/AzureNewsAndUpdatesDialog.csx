@@ -10,9 +10,15 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.ApplicationInsights;
 
 static Regex PartitionKeyRegex = new Regex(@"(\d{4}\-\d{2})");
 static Regex DateRegex = new Regex(@"(\d{4}\-\d{2}\-\d{2})");
+
+public static var telemetry = new TelemetryClient() 
+{
+    InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
+};
 
 [Serializable]
 public class AzureNewsAndUpdatesDialog : IDialog<object>
@@ -37,11 +43,13 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
     public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
     {
         var activity = await argument;
+        var startTime = DateTime.UtcNow;
+        var timer = System.Diagnostics.Stopwatch.StartNew();
         var storageAccountConnectionString = Environment.GetEnvironmentVariable("RssFeedsTableStorageConnectionString");
         var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
         var tableClient = storageAccount.CreateCloudTableClient();
         var table = tableClient.GetTableReference("RssFeeds");
-        var filterCondition = GenerateFilterCondition(activity);
+        var filterCondition = GenerateDateOrMonthFilterCondition(activity);
         var query = new TableQuery<FeedEntity>().Where(filterCondition);
         IEnumerable<FeedEntity> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
         if(string.IsNullOrEmpty(filterCondition))
@@ -52,7 +60,8 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
                             || feedEntity.Link.Contains(activity.Text.Replace(" ", string.Empty).ToLower())
                         select feedEntity;
         }
-        var resultsCount = results.Count(); 
+        var resultsCount = results.Count();
+        telemetry.TrackDependency("TableStorage", "GetRssFeeds", startTime, timer.Elapsed, true);
         if(resultsCount > 0)
         {
             var builder = new StringBuilder();
@@ -71,16 +80,19 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         context.Wait(MessageReceivedAsync);
     }
 
-    private string GenerateFilterCondition(IMessageActivity activity)
+    private string GenerateDateOrMonthFilterCondition(IMessageActivity activity)
     {
         if(DateRegex.IsMatch(activity.Text))
         {
+            telemetry.TrackEvent($"ByDate-{activity.Text}");
             return TableQuery.GenerateFilterCondition("Date", QueryComparisons.Equal, $"{activity.Text}");
         }
         else if(PartitionKeyRegex.IsMatch(activity.Text))
         {
+            telemetry.TrackEvent($"ByMonth-{activity.Text}");
             return TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{activity.Text}");
         }
+        telemetry.TrackEvent($"ByText-{activity.Text}");
         return string.Empty;
     }
 }
