@@ -2,7 +2,8 @@
   "frameworks": {
     "net46":{
       "dependencies": {
-        "Microsoft.Bot.Builder.Azure": "3.2.5"
+        "Microsoft.Bot.Builder.Azure": "3.2.5",
+        "Microsoft.ApplicationInsights": "2.4.0"
       }
     }
    }

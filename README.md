@@ -30,6 +30,41 @@ az group deployment create \
   --template-file azure-deploy.json 
   --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
 ```
-# Manual setup once deployed
+
+# Application Insights
+
+## Azure Bot Services - Analytics
 
 You could enable the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-manage-analytics).
+
+## Application Insights - Analytics
+
+You could perform different queries to retrieve information logged from the Azure Functions and the Azure Bot Service into Application Insights:
+
+Get all the requests performed on the Azure Functions (by adding the APPINSIGHTS_INSTRUMENTATIONKEY app settings):
+```
+requests
+```
+
+Get all the search by month performed by the end users:
+```
+customEvents
+| where name startswith "ByMonth-"
+```
+
+Get all the search by date performed by the end users:
+```
+customEvents
+| where name startswith "ByDate-"
+```
+
+Get all the search by text performed by the end users:
+```
+customEvents
+| where name startswith "ByText-"
+```
+
+Get all the duration of the query performed on the TableStorage:
+```
+dependencies
+```
