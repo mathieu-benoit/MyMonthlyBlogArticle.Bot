@@ -56,7 +56,7 @@ public class AzureNewsAndUpdatesDialog : IDialog<object>
         {
             results = from feedEntity 
                         in results 
-                        where feedEntity.Title.Contains(activity.Text)
+                        where feedEntity.Title.ToLower().Contains(activity.Text.ToLower())
                             || feedEntity.Link.Contains(activity.Text.Replace(" ", string.Empty).ToLower())
                         select feedEntity;
         }
