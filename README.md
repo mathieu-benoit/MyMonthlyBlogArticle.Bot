@@ -41,30 +41,35 @@ You could enable the Bot Analytics feature with Application Insights like descri
 
 You could perform different queries to retrieve information logged from the Azure Functions and the Azure Bot Service into Application Insights:
 
-Get all the requests performed on the Azure Functions (by adding the APPINSIGHTS_INSTRUMENTATIONKEY app settings):
+Get all the requests performed on the Azure Functions (because `APPINSIGHTS_INSTRUMENTATIONKEY` has been added on Azure Functions App's App Settings):
 ```
 requests
+| order by timestamp desc
 ```
 
-Get all the search by month performed by the end users:
+Get all the search by month performed by the end users (because `telemetry.TrackEvent($"ByMonth-{activity.Text}");` has been added in the code):
 ```
 customEvents
 | where name startswith "ByMonth-"
+| order by timestamp desc 
 ```
 
-Get all the search by date performed by the end users:
+Get all the search by date performed by the end users(because `telemetry.TrackEvent($"ByDate-{activity.Text}");` has been added in the code):
 ```
 customEvents
 | where name startswith "ByDate-"
+| order by timestamp desc 
 ```
 
-Get all the search by text performed by the end users:
+Get all the search by text performed by the end users(because `telemetry.TrackEvent($"ByText-{activity.Text}");` has been added in the code):
 ```
 customEvents
 | where name startswith "ByText-"
+| order by timestamp desc 
 ```
 
 Get all the duration of the query performed on the TableStorage:
 ```
 dependencies
+| order by timestamp desc
 ```
