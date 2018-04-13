@@ -13,7 +13,7 @@
     },
     "rssFeedsTableStorageConnectionString": {
       "type": "string"
-    }
+    },
     "botEnv": {
       "defaultValue": "prod",
       "type": "string"
