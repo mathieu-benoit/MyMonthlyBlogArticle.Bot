@@ -25,9 +25,16 @@ AppId=<app-guid>
 AppSecret=<app-secret>
 RssFeedsTableStorageConnectionString=<connection-string-of-the-azure-table-storage-containing-the-rss-feeds-table>
 
+# Deployment for local file
 az group deployment create \
   -g $RG \
-  --template-file azure-deploy.json 
+  --template-file azure-deploy.json \
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
+  
+# Deployment for remote file
+az group deployment create \
+  -g $RG \
+  --template-uri https://raw.githubusercontent.com/mathieu-benoit/MyMonthlyBlogArticle.Bot/master/azure-deploy.json \
   --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
 ```
 
