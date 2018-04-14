@@ -40,13 +40,9 @@ az group deployment create \
 
 # Application Insights
 
-## Azure Bot Services - Analytics
+Once the Azure Bot Service deployed you could leverage the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-manage-analytics).
 
-You could enable the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-manage-analytics).
-
-## Application Insights - Analytics
-
-You could perform different queries to retrieve information logged from the Azure Functions into Application Insights:
+Additionally to that, you could perform different queries to retrieve information logged from the Azure Functions into Application Insights:
 
 Get all the requests performed on the Azure Functions (because `APPINSIGHTS_INSTRUMENTATIONKEY` has been added on Azure Functions App's App Settings):
 ```
