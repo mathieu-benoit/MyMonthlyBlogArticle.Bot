@@ -18,6 +18,8 @@ public static var telemetry = new TelemetryClient()
     InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
 };
 
+private static bool AzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_CONNECTIONSTRING"));
+
 private static CloudTable GetRssFeedsCloudTable()
 {
     var storageAccountConnectionString = Environment.GetEnvironmentVariable("RssFeedsTableStorageConnectionString");
