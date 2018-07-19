@@ -18,7 +18,7 @@ public static var telemetry = new TelemetryClient()
     InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
 };
 
-private static bool AzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_CONNECTIONSTRING"));
+private static bool IsAzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_CONNECTIONSTRING"));
 
 private static CloudTable GetRssFeedsCloudTable()
 {
@@ -80,7 +80,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
 
     public async Task PostRssFeedsAsync(IDialogContext context, string date = null, string month = null, string text = null)
     {
-        var results = GetRssFeeds(date, month, text);
+        var results = IsAzureSearchEnabled ? GetRssFeedsFromAzureSearch(date, month, text) : GetRssFeedsFromAzureTableStorage(date, month, text);
         if(results.Count() > 0)
         {
             var builder = new StringBuilder();
@@ -96,8 +96,14 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
             await context.PostAsync($"No results found. \n{HelpMessage}");
         }
     }
+    
+    private IEnumerable<FeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
+    {
+        IEnumerable<FeedEntity> results = null;
+        return results;
+    }
 
-    private IEnumerable<FeedEntity> GetRssFeeds(string date = null, string month = null, string text = null)
+    private IEnumerable<FeedEntity> GetRssFeedsFromAzureTableStorage(string date = null, string month = null, string text = null)
     {
         var filterCondition = string.Empty;
         if(!string.IsNullOrEmpty(month))
