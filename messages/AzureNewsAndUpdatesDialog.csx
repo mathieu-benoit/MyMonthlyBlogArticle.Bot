@@ -18,7 +18,7 @@ public static var telemetry = new TelemetryClient()
     InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
 };
 
-private static bool IsAzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_CONNECTIONSTRING"));
+private static bool IsAzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_ENABLED"));
 
 private static CloudTable GetRssFeedsCloudTable()
 {
@@ -26,6 +26,15 @@ private static CloudTable GetRssFeedsCloudTable()
     var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
     var tableClient = storageAccount.CreateCloudTableClient();
     return tableClient.GetTableReference("RssFeeds");
+}
+
+private static ISearchIndexClient GetSearchIndexClient()
+{
+    var searchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
+    var searchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
+    var searchServiceQueryApiKey = Environment.GetEnvironmentVariable("AzureSearchServiceQueryApiKey");
+    var indexClient = new SearchIndexClient(searchServiceName, searchIndexName, new SearchCredentials(searchServiceQueryApiKey));
+    return indexClient;   
 }
 
 [Serializable]
@@ -99,6 +108,8 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     
     private IEnumerable<FeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
     {
+        var searchIndexClient = GetSearchIndexClient();
+        
         IEnumerable<FeedEntity> results = null;
         return results;
     }
