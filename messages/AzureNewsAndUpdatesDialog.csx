@@ -57,7 +57,8 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     [ScorableGroup(0)]
     public async Task Hello(IDialogContext context, IActivity activity)
     {
-        telemetry.TrackEvent($"ByHello-{activity.AsMessageActivity()?.Text}");
+        var properties = new Dictionary<string, string> {{"Text", activity.AsMessageActivity()?.Text}};
+        telemetryClient.TrackEvent("Hello", properties);
         await context.PostAsync($"Hi! I'm the 'Microsoft Azure News & Updates' Bot.\n{HelpMessage}");
     }
 
@@ -66,7 +67,6 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     public async Task ByDate(IDialogContext context, IActivity activity)
     {
         var message = activity.AsMessageActivity()?.Text;
-        telemetry.TrackEvent($"ByDate-{message}");
         await PostRssFeedsAsync(context, date: message);
     }
 
@@ -75,7 +75,6 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     public async Task ByMonth(IDialogContext context, IActivity activity)
     {
         var message = activity.AsMessageActivity()?.Text;
-        telemetry.TrackEvent($"ByMonth-{message}");
         await PostRssFeedsAsync(context, month: message);
     }
 
@@ -84,13 +83,29 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     public async Task Default(IDialogContext context, IActivity activity)
     {
         var message = activity.AsMessageActivity()?.Text;
-        telemetry.TrackEvent($"ByText-{message}");
         await PostRssFeedsAsync(context, text: message);
     }
 
     public async Task PostRssFeedsAsync(IDialogContext context, string date = null, string month = null, string text = null)
     {
-        var results = IsAzureSearchEnabled ? GetRssFeedsFromAzureSearch(date, month, text) : GetRssFeedsFromAzureTableStorage(date, month, text);
+        var startTime = DateTime.UtcNow;
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        IEnumerable<IFeedEntity> results = null;
+        if(IsAzureSearchEnabled)
+        {
+            results = GetRssFeedsFromAzureSearch(date, month, text);
+            var timerElapsed = timer.ElapsedMilliseconds;
+            TrackEventForSearch(date, month, text, results.Count.Value, timerElapsed);
+            telemetry.TrackDependency("Search", "GetRssFeeds", startTime, timerElapsed, true);//to remove?
+        }
+        else
+        {
+            results = GetRssFeedsFromAzureTableStorage(date, month, text);
+            var timerElapsed = timer.ElapsedMilliseconds;
+            TrackEvent(null, null, text, results.Count.Value, timerElapsed);
+            telemetry.TrackDependency("Table", "GetRssFeeds", startTime, timerElapsed, true);//to remove?
+        }
+        
         if(results.Count() > 0)
         {
             var builder = new StringBuilder();
@@ -110,8 +125,20 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     private IEnumerable<IFeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
     {
         var searchIndexClient = GetSearchIndexClient();
-        
-        IEnumerable<FeedEntityForSearch> results = null;
+        var searchText = text;
+        var top = 1000;//that's the max allowed by the Azure Search API, otherwise by default it's 50. I don't think any search by bot at least will have more than 1000 documents returned for now... to keep in mind. Alternative: do paging.
+        var parameters = new SearchParameters() { OrderBy = new[] { "Date desc" }, Top = top, IncludeTotalResultCount = true };
+        if(!string.IsNullOrEmpty(month))
+        {
+            searchText = "*";
+            parameters.Filter = $"PartitionKey eq '{month}'";
+        }
+        else if(!string.IsNullOrEmpty(date))
+        {
+            searchText = "*";
+            parameters.Filter = = $"Date eq '{date}'";
+        }
+        var results = searchIndexClient.Documents.Search<FeedForSearch>(searchText, parameters);
         return results;
     }
 
@@ -126,8 +153,6 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         {
             filterCondition = TableQuery.GenerateFilterCondition("Date", QueryComparisons.Equal, $"{date}");
         }
-        var startTime = DateTime.UtcNow;
-        var timer = System.Diagnostics.Stopwatch.StartNew();
         var table = GetRssFeedsCloudTable();
         var query = new TableQuery<FeedEntity>().Where(filterCondition);
         IEnumerable<FeedEntityForTable> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
@@ -139,7 +164,30 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
                             || feedEntity.Link.Contains(text.Replace(" ", string.Empty).ToLower())
                         select feedEntity;
         }
-        telemetry.TrackDependency("TableStorage", "GetRssFeeds", startTime, timer.Elapsed, true);
         return results;
+    }
+    
+    private static void TrackEventForSearch(string date, string month, string text, long resultsCount, long elapsedTime)
+    {
+        var properties = new Dictionary<string, string> {
+            {"SearchServiceName", searchServiceName},
+            {"IndexName", searchIndexName},
+            {"QueryTerms", date ?? month ?? text},
+            {"ResultCount", resultsCount.ToString()},
+            {"SearchType", !string.IsNullOrEmpty(date) ? "Date" : !string.IsNullOrEmpty(month) ? "Month" : "Text"},
+            {"SearchTimeElapsed", elapsedTime.ToString()}
+        };
+        telemetryClient.TrackEvent("Search", properties);
+    }
+    
+    private static void TrackEventForTable(string date, string month, string text, long resultsCount, long elapsedTime)
+    {
+        var properties = new Dictionary<string, string> {
+            {"QueryTerms", date ?? month ?? text},
+            {"ResultCount", resultsCount.ToString()},
+            {"SearchType", !string.IsNullOrEmpty(date) ? "Date" : !string.IsNullOrEmpty(month) ? "Month" : "Text"},
+            {"SearchTimeElapsed", elapsedTime.ToString()}
+        };
+        telemetryClient.TrackEvent("Table", properties);
     }
 }
