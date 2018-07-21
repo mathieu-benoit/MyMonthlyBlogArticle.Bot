@@ -52,13 +52,20 @@ requests
 
 Get all the search by month performed by the end users (because `telemetry.TrackEvent();` has been added in the code):
 ```
+//all searches
 customEvents
-| where name == "Search"
 | order by timestamp desc 
-```
+| where name == "Search" or name == "Hello"
 
-Get all the duration of the query performed on the TableStorage (because `telemetry.TrackDependency();` has been added in the code):
-```
-dependencies
-| order by timestamp desc
+//count of items by type
+customEvents
+| where name == "Search" 
+| summarize count() by tostring(customDimensions.SearchType)
+
+//average of items returned by type
+customEvents
+| where name == "Search" 
+| summarize avg(todouble(customDimensions.ResultCount)) by tostring(customDimensions.SearchType)
+
+//TODO: ElaspedTime + Most used SearchTerm
 ```
