@@ -53,7 +53,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     [RegexPattern("^Hey|hey")]
     [RegexPattern("^Help|help")]
     [RegexPattern("^What|what")]
-    [RegexPattern("*")]//otherwise it will return more than 1000 documents, and we don't want that with this Bot for now.
+    [RegexPattern("*")]//otherwise it will return more than 1000 documents by Azure Search which is not handles for now, and we don't want that with this Bot for now.
     [ScorableGroup(0)]
     public async Task Hello(IDialogContext context, IActivity activity)
     {
