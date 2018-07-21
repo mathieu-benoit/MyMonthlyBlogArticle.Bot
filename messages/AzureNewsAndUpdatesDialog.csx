@@ -19,6 +19,8 @@ public static var telemetry = new TelemetryClient()
 };
 
 private static bool IsAzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_ENABLED"));
+private static string AzureSearchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
+private static string AzureSearchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
 
 private static CloudTable GetRssFeedsCloudTable()
 {
@@ -30,10 +32,8 @@ private static CloudTable GetRssFeedsCloudTable()
 
 private static ISearchIndexClient GetSearchIndexClient()
 {
-    var searchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
-    var searchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
     var searchServiceQueryApiKey = Environment.GetEnvironmentVariable("AzureSearchServiceQueryApiKey");
-    var indexClient = new SearchIndexClient(searchServiceName, searchIndexName, new SearchCredentials(searchServiceQueryApiKey));
+    var indexClient = new SearchIndexClient(AzureSearchServiceName, AzureSearchIndexName, new SearchCredentials(searchServiceQueryApiKey));
     return indexClient;   
 }
 
@@ -138,7 +138,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
             searchText = "*";
             parameters.Filter = = $"Date eq '{date}'";
         }
-        var results = searchIndexClient.Documents.Search<FeedForSearch>(searchText, parameters);
+        var results = searchIndexClient.Documents.Search<FeedEntityForSearch>(searchText, parameters);
         return results;
     }
 
@@ -170,8 +170,8 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     private static void TrackEventForSearch(string date, string month, string text, long resultsCount, long elapsedTime)
     {
         var properties = new Dictionary<string, string> {
-            {"SearchServiceName", searchServiceName},
-            {"IndexName", searchIndexName},
+            {"SearchServiceName", AzureSearchServiceName},
+            {"IndexName", AzureSearchIndexName},
             {"QueryTerms", date ?? month ?? text},
             {"ResultCount", resultsCount.ToString()},
             {"SearchType", !string.IsNullOrEmpty(date) ? "Date" : !string.IsNullOrEmpty(month) ? "Month" : "Text"},
