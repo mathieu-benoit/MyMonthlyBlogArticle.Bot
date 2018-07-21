@@ -50,28 +50,14 @@ requests
 | order by timestamp desc
 ```
 
-Get all the search by month performed by the end users (because `telemetry.TrackEvent($"ByMonth-{activity.Text}");` has been added in the code):
+Get all the search by month performed by the end users (because `telemetry.TrackEvent();` has been added in the code):
 ```
 customEvents
-| where name startswith "ByMonth-"
+| where name == "Search"
 | order by timestamp desc 
 ```
 
-Get all the search by date performed by the end users (because `telemetry.TrackEvent($"ByDate-{activity.Text}");` has been added in the code):
-```
-customEvents
-| where name startswith "ByDate-"
-| order by timestamp desc 
-```
-
-Get all the search by text performed by the end users (because `telemetry.TrackEvent($"ByText-{activity.Text}");` has been added in the code):
-```
-customEvents
-| where name startswith "ByText-"
-| order by timestamp desc 
-```
-
-Get all the duration of the query performed on the TableStorage (because `telemetry.TrackDependency("TableStorage", "GetRssFeeds", startTime, timer.Elapsed, true);");` has been added in the code):
+Get all the duration of the query performed on the TableStorage (because `telemetry.TrackDependency();` has been added in the code):
 ```
 dependencies
 | order by timestamp desc
