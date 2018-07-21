@@ -13,7 +13,7 @@ interface IFeedEntity
     string Type { get; set; }
 }
 
-public class FeedForSearch : IFeedEntity
+public class FeedEntityForSearch : IFeedEntity
 {
     //Key --> Key
     //PartitionKey --> Filterable, Facetable?
@@ -27,7 +27,7 @@ public class FeedForSearch : IFeedEntity
     public string Type { get; set; }//Facetable?
 }
 
-public class FeedEntity : TableEntity, IFeedEntity
+public class FeedEntityForTable : TableEntity, IFeedEntity
 {
     public static string Manual = "manual";
 
@@ -37,7 +37,7 @@ public class FeedEntity : TableEntity, IFeedEntity
         PartitionKey = partitionKey;
     }
 
-    public FeedEntity() { }
+    public FeedEntityForTable() { }
 
     public string Date { get; set; }
 
