@@ -2,7 +2,32 @@
 
 using Microsoft.WindowsAzure.Storage.Table;
 
-public class FeedEntity : TableEntity
+interface IFeedEntity
+{
+    string Date { get; set; }
+
+    string Title { get; set; }
+
+    string Link { get; set; }
+
+    string Type { get; set; }
+}
+
+public class FeedForSearch : IFeedEntity
+{
+    //Key --> Key
+    //PartitionKey --> Filterable, Facetable?
+
+    public string Date { get; set; }//Retrievable, Filterable, Sortable
+
+    public string Title { get; set; }//Retrievable, Searchable
+
+    public string Link { get; set; }//Retrievable, Searchable
+
+    public string Type { get; set; }//Facetable?
+}
+
+public class FeedEntity : TableEntity, IFeedEntity
 {
     public static string Manual = "manual";
 
