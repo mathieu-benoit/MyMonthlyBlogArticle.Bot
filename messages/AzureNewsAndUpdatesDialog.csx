@@ -107,15 +107,15 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         }
     }
     
-    private IEnumerable<FeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
+    private IEnumerable<IFeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
     {
         var searchIndexClient = GetSearchIndexClient();
         
-        IEnumerable<FeedEntity> results = null;
+        IEnumerable<FeedEntityForSearch> results = null;
         return results;
     }
 
-    private IEnumerable<FeedEntity> GetRssFeedsFromAzureTableStorage(string date = null, string month = null, string text = null)
+    private IEnumerable<IFeedEntity> GetRssFeedsFromAzureTableStorage(string date = null, string month = null, string text = null)
     {
         var filterCondition = string.Empty;
         if(!string.IsNullOrEmpty(month))
@@ -130,7 +130,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         var timer = System.Diagnostics.Stopwatch.StartNew();
         var table = GetRssFeedsCloudTable();
         var query = new TableQuery<FeedEntity>().Where(filterCondition);
-        IEnumerable<FeedEntity> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
+        IEnumerable<FeedEntityForTable> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
         if(string.IsNullOrEmpty(filterCondition))
         {
             results = from feedEntity 
