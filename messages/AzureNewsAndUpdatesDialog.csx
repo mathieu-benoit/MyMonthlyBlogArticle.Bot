@@ -46,7 +46,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     public async Task Hello(IDialogContext context, IActivity activity)
     {
         var properties = new Dictionary<string, string> {{"Text", activity.AsMessageActivity()?.Text}};
-        telemetryClient.TrackEvent("Hello", properties);
+        telemetry.TrackEvent("Hello", properties);
         await context.PostAsync($"Hi! I'm the 'Microsoft Azure News & Updates' Bot.\n{HelpMessage}");
     }
 
@@ -80,15 +80,16 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         var timer = System.Diagnostics.Stopwatch.StartNew();
         var results = GetRssFeeds(date, month, text);
         var timerElapsed = timer.ElapsedMilliseconds;
-        TrackEvent(date, month, text, results.Count.Value, timerElapsed);
+        var resultsCount = results.Count.Value;
+        TrackEvent(date, month, text, resultsCount, timerElapsed);
         
-        if(results.Count() > 0)
+        if(resultsCount > 0)
         {
             var builder = new StringBuilder();
-            builder.Append($"{results.Count()} results found:");
-            foreach(var feed in results)
+            builder.Append($"{resultsCount} results found:");
+            foreach(var item in results.Results)
             {
-                builder.Append($"\n[{feed.Date}]({feed.Link}) - {feed.Title}");
+                builder.Append($"\n[{item.Document.Date}]({item.Document.Link}) - {item.Document.Title}");
             }
             await context.PostAsync($"{builder.ToString()}");
         }
@@ -98,7 +99,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         }
     }
     
-    private IEnumerable<Feed> GetRssFeeds(string date = null, string month = null, string text = null)
+    private DocumentSearchResult<Feed> GetRssFeeds(string date = null, string month = null, string text = null)
     {
         var searchIndexClient = GetSearchIndexClient();
         var searchText = text;
@@ -127,6 +128,6 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
             {"SearchType", !string.IsNullOrEmpty(date) ? "Date" : !string.IsNullOrEmpty(month) ? "Month" : "Text"},
             {"SearchTimeElapsed", elapsedTime.ToString()}
         };
-        telemetryClient.TrackEvent("Search", properties);
+        telemetry.TrackEvent("Search", properties);
     }
 }
