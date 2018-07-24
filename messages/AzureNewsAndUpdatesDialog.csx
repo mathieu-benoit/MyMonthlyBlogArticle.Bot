@@ -1,5 +1,3 @@
-#r "Microsoft.Azure.Search"
-
 #load "FeedEntity.csx"
 
 using System;
