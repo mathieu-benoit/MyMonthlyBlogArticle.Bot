@@ -1,4 +1,4 @@
-#r "Microsoft.WindowsAzure.Storage"
+#r "Microsoft.Azure.Search"
 
 #load "FeedEntity.csx"
 
@@ -6,29 +6,20 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
+using Microsoft.Azure.Search;
+using Microsoft.Azure.Search.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Scorables;
 using Microsoft.Bot.Connector;
-using Microsoft.WindowsAzure.Storage.Table;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.ApplicationInsights;
 
 public static var telemetry = new TelemetryClient() 
 {
     InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
 };
 
-private static bool IsAzureSearchEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURESEARCH_ENABLED"));
 private static string AzureSearchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
 private static string AzureSearchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
-
-private static CloudTable GetRssFeedsCloudTable()
-{
-    var storageAccountConnectionString = Environment.GetEnvironmentVariable("RssFeedsTableStorageConnectionString");
-    var storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
-    var tableClient = storageAccount.CreateCloudTableClient();
-    return tableClient.GetTableReference("RssFeeds");
-}
 
 private static ISearchIndexClient GetSearchIndexClient()
 {
@@ -90,21 +81,9 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     {
         var startTime = DateTime.UtcNow;
         var timer = System.Diagnostics.Stopwatch.StartNew();
-        IEnumerable<IFeedEntity> results = null;
-        if(IsAzureSearchEnabled)
-        {
-            results = GetRssFeedsFromAzureSearch(date, month, text);
-            var timerElapsed = timer.ElapsedMilliseconds;
-            TrackEventForSearch(date, month, text, results.Count.Value, timerElapsed);
-            telemetry.TrackDependency("Search", "GetRssFeeds", startTime, timerElapsed, true);//to remove?
-        }
-        else
-        {
-            results = GetRssFeedsFromAzureTableStorage(date, month, text);
-            var timerElapsed = timer.ElapsedMilliseconds;
-            TrackEvent(null, null, text, results.Count.Value, timerElapsed);
-            telemetry.TrackDependency("Table", "GetRssFeeds", startTime, timerElapsed, true);//to remove?
-        }
+        var results = GetRssFeeds(date, month, text);
+        var timerElapsed = timer.ElapsedMilliseconds;
+        TrackEvent(date, month, text, results.Count.Value, timerElapsed);
         
         if(results.Count() > 0)
         {
@@ -122,7 +101,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         }
     }
     
-    private IEnumerable<IFeedEntity> GetRssFeedsFromAzureSearch(string date = null, string month = null, string text = null)
+    private IEnumerable<Feed> GetRssFeeds(string date = null, string month = null, string text = null)
     {
         var searchIndexClient = GetSearchIndexClient();
         var searchText = text;
@@ -136,38 +115,12 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
         else if(!string.IsNullOrEmpty(date))
         {
             searchText = "*";
-            parameters.Filter = = $"Date eq '{date}'";
+            parameters.Filter = $"Date eq '{date}'";
         }
-        var results = searchIndexClient.Documents.Search<FeedEntityForSearch>(searchText, parameters);
-        return results;
-    }
-
-    private IEnumerable<IFeedEntity> GetRssFeedsFromAzureTableStorage(string date = null, string month = null, string text = null)
-    {
-        var filterCondition = string.Empty;
-        if(!string.IsNullOrEmpty(month))
-        {
-            filterCondition = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, $"{month}");
-        }
-        else if(!string.IsNullOrEmpty(date))
-        {
-            filterCondition = TableQuery.GenerateFilterCondition("Date", QueryComparisons.Equal, $"{date}");
-        }
-        var table = GetRssFeedsCloudTable();
-        var query = new TableQuery<FeedEntity>().Where(filterCondition);
-        IEnumerable<FeedEntityForTable> results = table.ExecuteQuery(query).OrderByDescending(f => f.Date);
-        if(string.IsNullOrEmpty(filterCondition))
-        {
-            results = from feedEntity 
-                        in results 
-                        where feedEntity.Title.ToLower().Contains(text.ToLower())
-                            || feedEntity.Link.Contains(text.Replace(" ", string.Empty).ToLower())
-                        select feedEntity;
-        }
-        return results;
+        return searchIndexClient.Documents.Search<Feed>(searchText, parameters);
     }
     
-    private static void TrackEventForSearch(string date, string month, string text, long resultsCount, long elapsedTime)
+    private static void TrackEvent(string date, string month, string text, long resultsCount, long elapsedTime)
     {
         var properties = new Dictionary<string, string> {
             {"SearchServiceName", AzureSearchServiceName},
@@ -178,16 +131,5 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
             {"SearchTimeElapsed", elapsedTime.ToString()}
         };
         telemetryClient.TrackEvent("Search", properties);
-    }
-    
-    private static void TrackEventForTable(string date, string month, string text, long resultsCount, long elapsedTime)
-    {
-        var properties = new Dictionary<string, string> {
-            {"QueryTerms", date ?? month ?? text},
-            {"ResultCount", resultsCount.ToString()},
-            {"SearchType", !string.IsNullOrEmpty(date) ? "Date" : !string.IsNullOrEmpty(month) ? "Month" : "Text"},
-            {"SearchTimeElapsed", elapsedTime.ToString()}
-        };
-        telemetryClient.TrackEvent("Table", properties);
     }
 }
