@@ -23,19 +23,21 @@ RG=<your-existing-resource-group-name>
 BotName=<bot-name>
 AppId=<app-guid>
 AppSecret=<app-secret>
-RssFeedsTableStorageConnectionString=<connection-string-of-the-azure-table-storage-containing-the-rss-feeds-table>
+AzureSearchServiceName=<azure-search-service-name>
+AzureSearchIndexName=<azure-search-index-name>
+AzureSearchServiceQueryApiKey=<azure-search-service-query-api-key>
 
 # Deployment for local file
 az group deployment create \
   -g $RG \
   --template-file azure-deploy.json \
-  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId azureSearchServiceName=$AzureSearchServiceName azureSearchIndexName=$AzureSearchIndexName azureSearchServiceQueryApiKey=$AzureSearchServiceQueryApiKey
   
 # Deployment for remote file
 az group deployment create \
   -g $RG \
   --template-uri https://raw.githubusercontent.com/mathieu-benoit/MyMonthlyBlogArticle.Bot/master/azure-deploy.json \
-  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId azureSearchServiceName=$AzureSearchServiceName azureSearchIndexName=$AzureSearchIndexName azureSearchServiceQueryApiKey=$AzureSearchServiceQueryApiKey
 ```
 
 # Application Insights
@@ -50,29 +52,27 @@ requests
 | order by timestamp desc
 ```
 
-Get all the search by month performed by the end users (because `telemetry.TrackEvent($"ByMonth-{activity.Text}");` has been added in the code):
+Get all the search by month performed by the end users (because `telemetry.TrackEvent();` has been added in the code):
 ```
+//all searches
 customEvents
-| where name startswith "ByMonth-"
 | order by timestamp desc 
-```
+| where name == "Search" or name == "Hello"
 
-Get all the search by date performed by the end users (because `telemetry.TrackEvent($"ByDate-{activity.Text}");` has been added in the code):
-```
+//count of items by type
 customEvents
-| where name startswith "ByDate-"
-| order by timestamp desc 
-```
+| where name == "Search" 
+| summarize count() by tostring(customDimensions.SearchType)
 
-Get all the search by text performed by the end users (because `telemetry.TrackEvent($"ByText-{activity.Text}");` has been added in the code):
-```
+//average of items returned by type
 customEvents
-| where name startswith "ByText-"
-| order by timestamp desc 
-```
+| where name == "Search" 
+| summarize avg(todouble(customDimensions.ResultCount)) by tostring(customDimensions.SearchType)
 
-Get all the duration of the query performed on the TableStorage (because `telemetry.TrackDependency("TableStorage", "GetRssFeeds", startTime, timer.Elapsed, true);");` has been added in the code):
-```
-dependencies
-| order by timestamp desc
+//count of search by query term
+customEvents
+| where name == "Search" 
+| summarize count() by tostring(customDimensions.QueryTerms)
+
+//TODO: leverage ElaspedTime + Most used SearchTerm
 ```

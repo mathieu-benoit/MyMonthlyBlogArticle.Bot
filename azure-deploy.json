@@ -11,7 +11,13 @@
     "appSecret": {
       "type": "string"
     },
-    "rssFeedsTableStorageConnectionString": {
+    "AzureSearchServiceName": {
+      "type": "string"
+    },
+    "AzureSearchIndexName": {
+      "type": "string"
+    },
+    "AzureSearchServiceQueryApiKey": {
       "type": "string"
     },
     "botEnv": {
@@ -182,8 +188,16 @@
               "value": "0"
             },
             {
-              "name": "RssFeedsTableStorageConnectionString",
-              "value": "[parameters('rssFeedsTableStorageConnectionString')]"
+              "name": "AzureSearchServiceName",
+              "value": "[parameters('azureSearchServiceName')]"
+            },
+            {
+              "name": "AzureSearchIndexName",
+              "value": "[parameters('azureSearchIndexName')]"
+            },
+            {
+              "name": "AzureSearchServiceQueryApiKey",
+              "value": "[parameters('azureSearchServiceQueryApiKey')]"
             }
           ],
           "cors": {
