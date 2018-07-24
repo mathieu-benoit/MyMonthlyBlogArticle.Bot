@@ -23,19 +23,21 @@ RG=<your-existing-resource-group-name>
 BotName=<bot-name>
 AppId=<app-guid>
 AppSecret=<app-secret>
-RssFeedsTableStorageConnectionString=<connection-string-of-the-azure-table-storage-containing-the-rss-feeds-table>
+AzureSearchServiceName=<azure-search-service-name>
+AzureSearchIndexName=<azure-search-index-name>
+AzureSearchServiceQueryApiKey=<azure-search-service-query-api-key>
 
 # Deployment for local file
 az group deployment create \
   -g $RG \
   --template-file azure-deploy.json \
-  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId azureSearchServiceName=$AzureSearchServiceName azureSearchIndexName=$AzureSearchIndexName azureSearchServiceQueryApiKey=$AzureSearchServiceQueryApiKey
   
 # Deployment for remote file
 az group deployment create \
   -g $RG \
   --template-uri https://raw.githubusercontent.com/mathieu-benoit/MyMonthlyBlogArticle.Bot/master/azure-deploy.json \
-  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId rssFeedsTableStorageConnectionString=$RssFeedsTableStorageConnectionString
+  --parameters botName=$BotName appSecret=$AppSecret appId=$AppId azureSearchServiceName=$AzureSearchServiceName azureSearchIndexName=$AzureSearchIndexName azureSearchServiceQueryApiKey=$AzureSearchServiceQueryApiKey
 ```
 
 # Application Insights
@@ -67,5 +69,10 @@ customEvents
 | where name == "Search" 
 | summarize avg(todouble(customDimensions.ResultCount)) by tostring(customDimensions.SearchType)
 
-//TODO: ElaspedTime + Most used SearchTerm
+//count of search by query term
+customEvents
+| where name == "Search" 
+| summarize count() by tostring(customDimensions.QueryTerms)
+
+//TODO: leverage ElaspedTime + Most used SearchTerm
 ```
