@@ -32,7 +32,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
     {
         get
         {
-            return $"You can search: \n* by month: '{DateTime.UtcNow.ToString("yyyy-MM")}' \n* by date: '{DateTime.UtcNow.ToString("yyyy-MM-dd")}' \n* by text: 'Functions', 'API Management', 'VSTS', 'DevOps', 'AKS Kubernetes', etc.";
+            return $"You can search: \n* by month: *{DateTime.UtcNow.ToString("yyyy-MM")}* \n* by date: *{DateTime.UtcNow.ToString("yyyy-MM-dd")}* \n* by text: *Functions*, *\"API Management\"*, *VSTS*, *DevOps*, *AKS | Kubernetes*, etc.";
         }
     }
 
