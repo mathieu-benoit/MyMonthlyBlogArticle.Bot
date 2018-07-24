@@ -16,14 +16,13 @@ public static var telemetry = new TelemetryClient()
     InstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY")
 };
 
-private static string AzureSearchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
-private static string AzureSearchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
+static string AzureSearchServiceName = Environment.GetEnvironmentVariable("AzureSearchServiceName");
+static string AzureSearchIndexName = Environment.GetEnvironmentVariable("AzureSearchIndexName");
+static string AzureSearchServiceQueryApiKey = Environment.GetEnvironmentVariable("AzureSearchServiceQueryApiKey");
 
 private static ISearchIndexClient GetSearchIndexClient()
 {
-    var searchServiceQueryApiKey = Environment.GetEnvironmentVariable("AzureSearchServiceQueryApiKey");
-    var indexClient = new SearchIndexClient(AzureSearchServiceName, AzureSearchIndexName, new SearchCredentials(searchServiceQueryApiKey));
-    return indexClient;   
+    return new SearchIndexClient(AzureSearchServiceName, AzureSearchIndexName, new SearchCredentials(AzureSearchServiceQueryApiKey));
 }
 
 [Serializable]
