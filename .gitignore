@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+/MyMonthlyBlogArticle.Bot/bin/Debug
+/MyMonthlyBlogArticle.Bot/obj
