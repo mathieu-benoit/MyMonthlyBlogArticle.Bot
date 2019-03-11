@@ -1,0 +1,40 @@
+﻿pool:
+  vmImage: 'Ubuntu 16.04'
+
+trigger:
+  paths:
+    include: 
+    - MyMonthlyBlogArticle.Bot/
+
+variables:
+  projectFolder: 'MyMonthlyBlogArticle.Bot/'
+  registryServerName: '$(registryName).azurecr.io'
+  imageName: mymonthyblogarticlebot
+  chartName: mymonthyblogarticlebot
+  # define 3 more variables: registryName, registryLogin and registryPassword in the build pipeline in UI
+
+
+steps:
+- bash: docker build -f $(system.defaultWorkingDirectory)/$(projectFolder)/Dockerfile -t $(registryServerName)/$(imageName):$(build.buildId) -t $(registryServerName)/$(imageName):latest $(system.defaultWorkingDirectory)/$(projectFolder)
+  displayName: 'docker build'
+
+- bash: docker login $(registryServerName) -u $(registryLogin) -p $(registryPassword)
+  displayName: 'docker login'
+
+- bash: |
+    docker push $(registryServerName)/$(imageName):$(build.buildId)
+    docker push $(registryServerName)/$(imageName):latest
+  displayName: 'docker push'
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+
+#- task: HelmInstaller@0
+#  displayName: 'Install Helm'
+#  inputs:
+#    helmVersion: 2.12.3
+
+#- bash: helm package --version $(build.buildId) --destination $(build.artifactStagingDirectory) $(system.defaultWorkingDirectory)/$(projectFolder)/charts/$(chartName)
+#  displayName: 'helm package'
+
+#- bash: az acr helm push -n $(registryName) -u $(registryLogin) -p $(registryPassword) $(build.artifactStagingDirectory)/$(projectFolder)-$(build.buildId).tgz
+#  displayName: 'az acr helm push'
+#  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
