@@ -42,7 +42,7 @@ namespace MyMonthlyBlogArticle.Bot
             if (turnContext.Activity.Type == ActivityTypes.Message)
             {
                 // Echo back to the user whatever they typed.             
-                await turnContext.SendActivityAsync("Hello World", cancellationToken: cancellationToken);
+                await turnContext.SendActivityAsync($"Hello World, you said {turnContext.Activity.Text}", cancellationToken: cancellationToken);
             }
         }
     }
