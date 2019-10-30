@@ -88,7 +88,7 @@ public class AzureNewsAndUpdatesDialog : DispatchDialog<object>
             builder.Append($"{resultsCount} results found:");
             foreach(var item in results.Results)
             {
-                builder.Append($"\n[{item.Document.Date}]({item.Document.Link}) - {item.Document.Title}");
+                builder.Append($"  \n[{item.Document.Date}]({item.Document.Link}) - {item.Document.Title}");
             }
             await context.PostAsync($"{builder.ToString()}");
         }
