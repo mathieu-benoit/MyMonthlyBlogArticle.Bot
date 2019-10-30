@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
@@ -11,6 +9,10 @@ using Microsoft.Bot.Configuration;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyMonthlyBlogArticle.Bot.Middleware;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MyMonthlyBlogArticle.Bot
 {
@@ -71,6 +73,11 @@ namespace MyMonthlyBlogArticle.Bot
                 };
 
                 options.Middleware.Add(new ShowTypingMiddleware());
+                options.Middleware.Add(new RegExpRecognizerMiddleware()
+                        .AddIntent("search", new Regex("search picture(?:s)*(.*)|search pic(?:s)*(.*)", RegexOptions.IgnoreCase))
+                        .AddIntent("share", new Regex("share picture(?:s)*(.*)|share pic(?:s)*(.*)", RegexOptions.IgnoreCase))
+                        .AddIntent("order", new Regex("order picture(?:s)*(.*)|order print(?:s)*(.*)|order pic(?:s)*(.*)", RegexOptions.IgnoreCase))
+                        .AddIntent("help", new Regex("help(.*)", RegexOptions.IgnoreCase)));
             });
         }
 

@@ -39,10 +39,19 @@ namespace MyMonthlyBlogArticle.Bot
             // Handle Message activity type, which is the main activity type for shown within a conversational interface
             // Message activities may contain text, speech, interactive cards, and binary or unknown attachments.
             // see https://aka.ms/about-bot-activity-message to learn more about the message and other activity types
-            if (turnContext.Activity.Type == ActivityTypes.Message)
+            switch (turnContext.Activity.Type)
             {
-                // Echo back to the user whatever they typed.             
-                await turnContext.SendActivityAsync($"Hello World, you said {turnContext.Activity.Text}", cancellationToken: cancellationToken);
+                case ActivityTypes.Message:
+                    //log.Info($"ActivityTypes.Message - {activity.Text}");
+                    //await Conversation.SendAsync(activity, () => new AzureNewsAndUpdatesDialog());
+                    await turnContext.SendActivityAsync($"Hello World, you said {turnContext.Activity.Text}", cancellationToken: cancellationToken);
+                    break;
+                case ActivityTypes.ConversationUpdate:
+                    await turnContext.SendActivityAsync($"Welcome!", cancellationToken: cancellationToken);
+                    break;
+                default:
+                    //log.Error($"Unknown activity type ignored: {activity.GetActivityType()}");
+                    break;
             }
         }
     }
