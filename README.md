@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/MyMonthlyBlogArticle.Bot?branchName=dotnetcore)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=111&branchName=dotnetcore)
+
 # MyMonthlyBlogArticle.Bot
 
 This repository contains all the Bot Service and Azure Functions code and deployment setup related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html).
