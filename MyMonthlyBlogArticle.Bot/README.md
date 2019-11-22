@@ -1,4 +1,6 @@
-﻿# MyMonthlyBlogArticle.Bot
+﻿[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/MyMonthlyBlogArticle.Bot?branchName=dotnetcore)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=111&branchName=dotnetcore)
+
+# MyMonthlyBlogArticle.Bot
 
 This bot is a simple bot that accepts input from the user and echoes it back.
 This bot has been created using [Microsoft Bot Framework][1], 
