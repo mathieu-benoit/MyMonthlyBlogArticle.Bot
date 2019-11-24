@@ -55,6 +55,7 @@ stages:
       displayName: 'helm package'
     - bash: |
         cd chart/
+        ls
         chartPackage=$(ls $(projectName)-*.tgz)
         newChartVersion=$(echo $(basename $chartPackage) | egrep -o '[a-z][0-9].*[0-9]')
         previousChartVersion=$(az acr helm list \
