@@ -114,13 +114,13 @@ stages:
                   --username $(registryLogin) \
                   --password $(registryPassword)
               helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
+              echo $helmChartVersion
               helm upgrade \
                   --namespace $(k8sNamespace) \
                   --install \
                   --wait \
                   --version $helmChartVersion \
                   --set image.repository=$(registryServerName)/$(projectName) \
-                  --set ingress.enabled=false \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true
