@@ -50,7 +50,7 @@ stages:
     - bash: |
         cd chart/
         helm package \
-            --version $(helmChartVersion)
+            --version $(helmChartVersion) \
             --app-version $(imageTag) \
             .
       failOnStderr: true
