@@ -106,7 +106,6 @@ stages:
                   --username $(registryLogin) \
                   --password $(registryPassword)
               helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
-              echo $helmChartVersion
               helm upgrade \
                   --namespace $(k8sNamespace) \
                   --install \
