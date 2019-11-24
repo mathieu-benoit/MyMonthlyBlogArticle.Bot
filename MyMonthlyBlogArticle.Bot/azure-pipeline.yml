@@ -10,7 +10,7 @@ variables:
   vmImage: 'ubuntu-16.04'
   helmVersion: 3.0.0
   registryServerName: '$(registryName).azurecr.io'
-  imageName: mymonthyblogarticlebot
+  projectName: mymonthyblogarticlebot
   # define 3 more variables: registryName, registryLogin and registryPassword in the Azure pipeline UI definition
 
 stages:
@@ -28,7 +28,7 @@ stages:
     - bash: |
         cd $(projectFolder)
         docker build \
-            -t $(registryServerName)/$(imageName):$(imageTag) \
+            -t $(registryServerName)/$(projectName):$(imageTag) \
             .
       failOnStderr: true
       displayName: 'docker build'
@@ -39,7 +39,7 @@ stages:
             --password-stdin
       displayName: 'docker login'
     - bash: |
-        docker push $(registryServerName)/$(imageName):$(imageTag)
+        docker push $(registryServerName)/$(projectName):$(imageTag)
       failOnStderr: true
       displayName: 'docker push'
     - task: HelmInstaller@1
