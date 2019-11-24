@@ -113,6 +113,8 @@ stages:
                   --wait \
                   --version $helmChartVersion \
                   --set image.repository=$(registryServerName)/$(projectName) \
+                  --set image.env.microsoftAppId=$(microsoftAppId) \
+                  --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true
