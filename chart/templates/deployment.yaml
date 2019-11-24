@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "test.fullname" . }}
+  name: {{ include "mymonthlyblogarticlebot.fullname" . }}
   labels:
-    {{- include "test.labels" . | nindent 4 }}
+    {{- include "mymonthlyblogarticlebot.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "test.selectorLabels" . | nindent 6 }}
+      {{- include "mymonthlyblogarticlebot.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "test.selectorLabels" . | nindent 8 }}
+        {{- include "mymonthlyblogarticlebot.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "test.serviceAccountName" . }}
+      serviceAccountName: {{ include "mymonthlyblogarticlebot.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -31,6 +31,11 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          env:
+          - name: MICROSOFT_APP_ID
+            value: {{ .Values.image.env.microsoftAppId }}
+          - name: MICROSOFT_APP_PASSWORD
+            value: {{ .Values.image.env.microsoftAppPassword }}
           livenessProbe:
             httpGet:
               path: /

@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "test.fullname" . }}-test-connection"
+  name: "{{ include "mymonthlyblogarticlebot.fullname" . }}-mymonthlyblogarticlebot-connection"
   labels:
-{{ include "test.labels" . | nindent 4 }}
+{{ include "mymonthlyblogarticlebot.labels" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": test-success
+    "helm.sh/hook": mymonthlyblogarticlebot-success
 spec:
   containers:
     - name: wget
       image: busybox
       command: ['wget']
-      args:  ['{{ include "test.fullname" . }}:{{ .Values.service.port }}']
+      args:  ['{{ include "mymonthlyblogarticlebot.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

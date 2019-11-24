@@ -1,0 +1,132 @@
+trigger:
+  batch: true
+  branches:
+    include: 
+    - '*'
+
+pr: none
+
+variables:
+  vmImage: 'ubuntu-16.04'
+  helmVersion: 3.0.0
+  registryServerName: '$(registryName).azurecr.io'
+  imageName: mymonthyblogarticlebot
+  # define 3 more variables: registryName, registryLogin and registryPassword in the Azure pipeline UI definition
+
+stages:
+- stage: 'Build'
+  displayName: 'Build'
+  jobs:
+  - job: 'Build'
+  variables:
+      imageTag: $(build.buildId)
+      projectFolder: 'MyMonthlyBlogArticle.Bot'
+  displayName: 'Build'
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - bash: |
+        cd $(projectFolder)
+        docker build \
+            -t $(registryServerName)/$(imageName):$(imageTag) \
+            .
+      failOnStderr: true
+      displayName: 'docker build'
+    - bash: |
+        echo $(registryPassword) | docker login \
+            $(registryServerName) \
+            -u $(registryLogin) \
+            --password-stdin
+      displayName: 'docker login'
+    - bash: |
+        docker push $(registryServerName)/$(imageName):$(imageTag)
+      failOnStderr: true
+      displayName: 'docker push'
+    - task: HelmInstaller@1
+      displayName: 'install helm'
+      inputs:
+        helmVersionToInstall: $(helmVersion)
+    - bash: |
+        cd $(projectName)
+        helm package \
+            --app-version $(imageTag) \
+            charts/$(projectName)
+      failOnStderr: true
+      displayName: 'helm package'
+    - bash: |
+        cd $(projectName)
+        chartPackage=$(ls $(projectName)-*.tgz)
+        newChartVersion=$(echo $(basename $chartPackage) | egrep -o '[a-z][0-9].*[0-9]')
+        previousChartVersion=$(az acr helm list \
+                                        -n $(registryName) \
+                                        -u $(registryLogin) \
+                                        -p $(registryPassword) \
+                                        --query "$(projectName)[?version=='$newChartVersion'].version" \
+                                        -o tsv)
+        if [ "$newChartVersion" != "$previousChartVersion" ]; then
+            az acr helm push \
+                -n $(registryName) \
+                -u $(registryLogin) \
+                -p $(registryPassword) \
+                $chartPackage
+        fi
+        echo $(jq -n --arg version "$newChartVersion" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
+      failOnStderr: true
+      name: helmPush
+      displayName: 'az acr helm push'
+    - publish: $(build.artifactStagingDirectory)
+      artifact: build-artifact
+- stage: 'Release'
+  displayName: 'Release'
+  jobs:
+  - deployment: Release
+    variables:
+      k8sNamespace: 'phippyandfriends'
+      # define 4 more variables: aks, aksSpId, aksSpSecret and aksSpTenantId in the Azure pipeline UI definition
+    displayName: deploy helm chart into AKS
+    pool:
+      vmImage: 'ubuntu-16.04'
+    environment: release-$(projectName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+  jobs:
+  - job: 'Release'
+    displayName: 'Release'
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - checkout: none
+    - task: HelmInstaller@1
+      displayName: 'install helm'
+      inputs:
+        helmVersionToInstall: $(helmVersion)
+    - download: current
+      artifact: build-artifact
+    - bash: |
+      az login \
+            --service-principal \
+            -u $(aksSpId) \
+            -p $(aksSpSecret) \
+            --tenant $(aksSpTenantId)
+        az aks get-credentials \
+            -n $(aks) \
+            -g $(aks)
+        helm repo add \
+            $(registryName) \
+            https://$(registryServerName)/helm/v1/repo \
+            --username $(registryLogin) \
+            --password $(registryPassword)
+        helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
+        helm upgrade \
+            --namespace $(k8sNamespace) \
+            --install \
+            --wait \
+            --version $helmChartVersion \
+            --set image.repository=$(registryServerName)/$(projectName) \
+            --set ingress.enabled=false \
+            $(projectName) \
+            $(registryName)/$(projectName)
+      failOnStderr: true
+      displayName: 'deploy helm chart'
