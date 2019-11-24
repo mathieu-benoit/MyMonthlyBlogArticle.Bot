@@ -18,10 +18,10 @@ stages:
   displayName: 'Build'
   jobs:
   - job: 'Build'
-  variables:
+    variables:
       imageTag: $(build.buildId)
       projectFolder: 'MyMonthlyBlogArticle.Bot'
-  displayName: 'Build'
+    displayName: 'Build'
     pool:
       vmImage: $(vmImage)
     steps:
@@ -91,42 +91,36 @@ stages:
       runOnce:
         deploy:
           steps:
-  jobs:
-  - job: 'Release'
-    displayName: 'Release'
-    pool:
-      vmImage: $(vmImage)
-    steps:
-    - checkout: none
-    - task: HelmInstaller@1
-      displayName: 'install helm'
-      inputs:
-        helmVersionToInstall: $(helmVersion)
-    - download: current
-      artifact: build-artifact
-    - bash: |
-      az login \
-            --service-principal \
-            -u $(aksSpId) \
-            -p $(aksSpSecret) \
-            --tenant $(aksSpTenantId)
-        az aks get-credentials \
-            -n $(aks) \
-            -g $(aks)
-        helm repo add \
-            $(registryName) \
-            https://$(registryServerName)/helm/v1/repo \
-            --username $(registryLogin) \
-            --password $(registryPassword)
-        helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
-        helm upgrade \
-            --namespace $(k8sNamespace) \
-            --install \
-            --wait \
-            --version $helmChartVersion \
-            --set image.repository=$(registryServerName)/$(projectName) \
-            --set ingress.enabled=false \
-            $(projectName) \
-            $(registryName)/$(projectName)
-      failOnStderr: true
-      displayName: 'deploy helm chart'
+          - checkout: none
+          - task: HelmInstaller@1
+            displayName: 'install helm'
+            inputs:
+              helmVersionToInstall: $(helmVersion)
+          - download: current
+            artifact: build-artifact
+          - bash: |
+            az login \
+                  --service-principal \
+                  -u $(aksSpId) \
+                  -p $(aksSpSecret) \
+                  --tenant $(aksSpTenantId)
+              az aks get-credentials \
+                  -n $(aks) \
+                  -g $(aks)
+              helm repo add \
+                  $(registryName) \
+                  https://$(registryServerName)/helm/v1/repo \
+                  --username $(registryLogin) \
+                  --password $(registryPassword)
+              helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
+              helm upgrade \
+                  --namespace $(k8sNamespace) \
+                  --install \
+                  --wait \
+                  --version $helmChartVersion \
+                  --set image.repository=$(registryServerName)/$(projectName) \
+                  --set ingress.enabled=false \
+                  $(projectName) \
+                  $(registryName)/$(projectName)
+            failOnStderr: true
+            displayName: 'deploy helm chart'
