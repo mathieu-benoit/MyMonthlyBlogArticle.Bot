@@ -20,6 +20,7 @@ stages:
   - job: 'Build'
     variables:
       imageTag: $(build.buildId)
+      helmChartVersion: $(build.buildId)
       projectFolder: 'MyMonthlyBlogArticle.Bot'
     displayName: 'Build'
     pool:
@@ -49,29 +50,20 @@ stages:
     - bash: |
         cd chart/
         helm package \
+            --version $(helmChartVersion)
             --app-version $(imageTag) \
             .
       failOnStderr: true
       displayName: 'helm package'
     - bash: |
         cd chart/
-        ls
         chartPackage=$(ls $(projectName)-*.tgz)
-        newChartVersion=$(echo $(basename $chartPackage) | egrep -o '[a-z][0-9].*[0-9]')
-        previousChartVersion=$(az acr helm list \
-                                        -n $(registryName) \
-                                        -u $(registryLogin) \
-                                        -p $(registryPassword) \
-                                        --query "$(projectName)[?version=='$newChartVersion'].version" \
-                                        -o tsv)
-        if [ "$newChartVersion" != "$previousChartVersion" ]; then
-            az acr helm push \
-                -n $(registryName) \
-                -u $(registryLogin) \
-                -p $(registryPassword) \
-                $chartPackage
-        fi
-        echo $(jq -n --arg version "$newChartVersion" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
+        az acr helm push \
+            -n $(registryName) \
+            -u $(registryLogin) \
+            -p $(registryPassword) \
+            $chartPackage
+        echo $(jq -n --arg version "$helmChartVersion" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
       failOnStderr: true
       name: helmPush
       displayName: 'az acr helm push'
