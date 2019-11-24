@@ -63,7 +63,7 @@ stages:
             -u $(registryLogin) \
             -p $(registryPassword) \
             $chartPackage
-        echo $(jq -n --arg version "$helmChartVersion" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
+        echo $(jq -n --arg version "$(helmChartVersion)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
       failOnStderr: true
       name: helmPush
       displayName: 'az acr helm push'
