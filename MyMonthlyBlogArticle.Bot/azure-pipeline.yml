@@ -74,7 +74,7 @@ stages:
   jobs:
   - deployment: Release
     variables:
-      k8sNamespace: 'phippyandfriends'
+      k8sNamespace: $(projectName)
       # define 4 more variables: aks, aksSpId, aksSpSecret and aksSpTenantId in the Azure pipeline UI definition
     displayName: deploy helm chart into AKS
     pool:
