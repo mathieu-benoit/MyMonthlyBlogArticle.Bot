@@ -36,14 +36,6 @@ spec:
             value: {{ .Values.image.env.microsoftAppId }}
           - name: MICROSOFT_APP_PASSWORD
             value: {{ .Values.image.env.microsoftAppPassword }}
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
