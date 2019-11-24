@@ -10,7 +10,7 @@ variables:
   vmImage: 'ubuntu-16.04'
   helmVersion: 3.0.0
   registryServerName: '$(registryName).azurecr.io'
-  projectName: mymonthyblogarticlebot
+  projectName: mymonthlyblogarticlebot
   # define 3 more variables: registryName, registryLogin and registryPassword in the Azure pipeline UI definition
 
 stages:
