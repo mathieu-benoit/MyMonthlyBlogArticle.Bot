@@ -47,14 +47,14 @@ stages:
       inputs:
         helmVersionToInstall: $(helmVersion)
     - bash: |
-        cd charts/
+        cd chart/
         helm package \
             --app-version $(imageTag) \
             .
       failOnStderr: true
       displayName: 'helm package'
     - bash: |
-        cd charts/
+        cd chart/
         chartPackage=$(ls $(projectName)-*.tgz)
         newChartVersion=$(echo $(basename $chartPackage) | egrep -o '[a-z][0-9].*[0-9]')
         previousChartVersion=$(az acr helm list \
