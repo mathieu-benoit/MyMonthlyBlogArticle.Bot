@@ -99,7 +99,7 @@ stages:
           - download: current
             artifact: build-artifact
           - bash: |
-            az login \
+              az login \
                   --service-principal \
                   -u $(aksSpId) \
                   -p $(aksSpSecret) \
