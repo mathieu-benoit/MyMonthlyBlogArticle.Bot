@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -22,7 +23,22 @@ namespace MyMonthlyBlogArticle.Bot.Bots
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             var text = turnContext.Activity.Text;
-            await turnContext.SendActivityAsync($"Echo: {text}", cancellationToken: cancellationToken);
+            if (Regex.IsMatch(text, "^Hello|hello|Hi|hi|Hey|hey|Help|help|What|what"))
+            {
+                await turnContext.SendActivityAsync(HelpMessage, cancellationToken: cancellationToken);
+            }
+            else if (Regex.IsMatch(text, @"\d{4}\-\d{2}\-\d{2}"))
+            {
+                await turnContext.SendActivityAsync($"Date: {text}", cancellationToken: cancellationToken);
+            }
+            else if (Regex.IsMatch(text, @"\d{4}\-\d{2}"))
+            {
+                await turnContext.SendActivityAsync($"Month: {text}", cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await turnContext.SendActivityAsync($"Text: {text}", cancellationToken: cancellationToken);
+            }
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
