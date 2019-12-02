@@ -37,6 +37,12 @@ spec:
             value: {{ .Values.image.env.microsoftAppPassword }}
           - name: APPINSIGHTS_INSTRUMENTATIONKEY
             value: {{ .Values.image.env.appInsights.instrumentationKey }}
+          - name: AZURE_SEARCH_SERVICE_NAME
+            value: {{ .Values.image.env.search.serviceName }}
+          - name: AZURE_SEARCH_INDEX_NAME
+            value: {{ .Values.image.env.search.indexName }}
+          - name: AZURE_SEARCH_SERVICE_QUERY_API_KEY
+            value: {{ .Values.image.env.search.serviceQueryApiKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

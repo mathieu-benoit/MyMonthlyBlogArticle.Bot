@@ -7,6 +7,10 @@ image:
     microsoftAppPassword: ""
     appInsights:
       instrumentationKey: ""
+    search:
+      serviceName: ""
+      indexName: ""
+      serviceQueryApiKey: ""
 
 imagePullSecrets: []
 nameOverride: ""
