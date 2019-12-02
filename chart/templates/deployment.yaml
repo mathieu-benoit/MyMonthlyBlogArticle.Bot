@@ -35,6 +35,8 @@ spec:
             value: {{ .Values.image.env.microsoftAppId }}
           - name: MICROSOFT_APP_PASSWORD
             value: {{ .Values.image.env.microsoftAppPassword }}
+          - name: APPINSIGHTS_INSTRUMENTATIONKEY
+            value: {{ .Values.image.env.appInsights.instrumentationKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
