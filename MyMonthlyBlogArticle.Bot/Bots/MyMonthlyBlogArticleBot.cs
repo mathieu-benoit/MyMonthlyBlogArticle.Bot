@@ -21,7 +21,7 @@ namespace MyMonthlyBlogArticle.Bot.Bots
         {
             get
             {
-                return $"You can search: \n* by month: *{DateTime.UtcNow.ToString("yyyy-MM")}* \n* by date: *{DateTime.UtcNow.ToString("yyyy-MM-dd")}* \n* by text: *Functions*, *\"API Management\"*, *DevOps*, *AKS | Kubernetes*, etc.";
+                return $"You can search: \n* by month: *{DateTime.UtcNow.ToString("yyyy-MM")}* \n* by date: *{DateTime.UtcNow.ToString("yyyy-MM-dd")}* \n* by keyword: *Functions*, *\"API Management\"*, *DevOps*, *AKS | Kubernetes*, etc.";
             }
         }
 
