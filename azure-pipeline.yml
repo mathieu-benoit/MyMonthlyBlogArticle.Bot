@@ -115,6 +115,9 @@ stages:
                   --set image.env.microsoftAppId=$(microsoftAppId) \
                   --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
                   --set image.env.appInsights.instrumentationKey=$(appInsightsInstrumentationKey) \
+                  --set image.env.search.serviceName=$(azureSearchServiceName) \
+                  --set image.env.search.indexName=$(azureSearchIndexName) \
+                  --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true
