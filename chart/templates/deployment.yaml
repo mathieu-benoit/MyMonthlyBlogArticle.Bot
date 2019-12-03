@@ -31,9 +31,9 @@ spec:
               containerPort: 80
               protocol: TCP
           env:
-          - name: MICROSOFT_APP_ID
+          - name: MicrosoftAppId
             value: {{ .Values.image.env.microsoftAppId }}
-          - name: MICROSOFT_APP_PASSWORD
+          - name: MicrosoftAppPassword
             value: {{ .Values.image.env.microsoftAppPassword }}
           - name: APPINSIGHTS_INSTRUMENTATIONKEY
             value: {{ .Values.image.env.appInsights.instrumentationKey }}
