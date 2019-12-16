@@ -6,3 +6,4 @@
 /MyMonthlyBlogArticle.Bot/bin
 /MyMonthlyBlogArticle.Bot/obj
 *.user
+/.vscode
