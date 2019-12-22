@@ -1,6 +1,6 @@
 # https://mcr.microsoft.com/v2/dotnet/core/aspnet/tags/list
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.0-alpine AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.100-alpine AS build-env
 WORKDIR /app
 
 # Copy csproj and restore as distinct layers
