@@ -1,0 +1,128 @@
+trigger:
+  batch: true
+  branches:
+    include: 
+    - '*'
+  paths:
+    exclude:
+    - README.md
+    - FlowAndArchitecture.PNG
+
+pr: none
+
+variables:
+  vmImage: 'ubuntu-16.04'
+  helmVersion: 3.0.2
+  registryServerName: '$(registryName).azurecr.io'
+  projectName: mymonthlyblogarticlebot
+  # define 3 more variables: registryName, registryLogin and registryPassword in the Azure pipeline UI definition
+
+stages:
+- stage: 'Build'
+  displayName: 'Build'
+  jobs:
+  - job: 'Build'
+    variables:
+      imageTag: $(build.buildId)
+      helmChartVersion: $(build.buildId)
+      projectFolder: 'MyMonthlyBlogArticle.Bot'
+    displayName: 'Build'
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - bash: |
+        cd $(projectFolder)
+        docker build \
+            -t $(registryServerName)/$(projectName):$(imageTag) \
+            .
+      failOnStderr: true
+      displayName: 'docker build'
+    - bash: |
+        echo $(registryPassword) | docker login \
+            $(registryServerName) \
+            -u $(registryLogin) \
+            --password-stdin
+      displayName: 'docker login'
+    - bash: |
+        docker push $(registryServerName)/$(projectName):$(imageTag)
+      failOnStderr: true
+      displayName: 'docker push'
+    - task: HelmInstaller@1
+      displayName: 'install helm'
+      inputs:
+        helmVersionToInstall: $(helmVersion)
+    - bash: |
+        cd chart/
+        helm package \
+            --version $(helmChartVersion) \
+            --app-version $(imageTag) \
+            .
+      failOnStderr: true
+      displayName: 'helm package'
+    - bash: |
+        cd chart/
+        chartPackage=$(ls $(projectName)-*.tgz)
+        az acr helm push \
+            -n $(registryName) \
+            -u $(registryLogin) \
+            -p $(registryPassword) \
+            $chartPackage
+        echo $(jq -n --arg version "$(helmChartVersion)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
+      failOnStderr: true
+      name: helmPush
+      displayName: 'az acr helm push'
+    - publish: $(build.artifactStagingDirectory)
+      artifact: build-artifact
+- stage: 'Release'
+  displayName: 'Release'
+  jobs:
+  - deployment: Release
+    variables:
+      k8sNamespace: $(projectName)
+      # define 4 more variables: aks, aksSpId, aksSpSecret and aksSpTenantId in the Azure pipeline UI definition
+    displayName: deploy helm chart into AKS
+    pool:
+      vmImage: 'ubuntu-16.04'
+    environment: release-$(projectName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: none
+          - task: HelmInstaller@1
+            displayName: 'install helm'
+            inputs:
+              helmVersionToInstall: $(helmVersion)
+          - download: current
+            artifact: build-artifact
+          - bash: |
+              az login \
+                  --service-principal \
+                  -u $(aksSpId) \
+                  -p $(aksSpSecret) \
+                  --tenant $(aksSpTenantId)
+              az aks get-credentials \
+                  -n $(aks) \
+                  -g $(aks)
+              helm repo add \
+                  $(registryName) \
+                  https://$(registryServerName)/helm/v1/repo \
+                  --username $(registryLogin) \
+                  --password $(registryPassword)
+              helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
+              helm upgrade \
+                  --namespace $(k8sNamespace) \
+                  --install \
+                  --wait \
+                  --version $helmChartVersion \
+                  --set image.repository=$(registryServerName)/$(projectName) \
+                  --set image.env.microsoftAppId=$(microsoftAppId) \
+                  --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
+                  --set image.env.appInsights.instrumentationKey=$(appInsightsInstrumentationKey) \
+                  --set image.env.search.serviceName=$(azureSearchServiceName) \
+                  --set image.env.search.indexName=$(azureSearchIndexName) \
+                  --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
+                  $(projectName) \
+                  $(registryName)/$(projectName)
+            failOnStderr: true
+            displayName: 'deploy helm chart'
