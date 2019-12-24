@@ -32,17 +32,35 @@ spec:
               protocol: TCP
           env:
           - name: MicrosoftAppId
-            value: {{ .Values.image.env.microsoftAppId }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: microsoftAppId
           - name: MicrosoftAppPassword
-            value: {{ .Values.image.env.microsoftAppPassword }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: microsoftAppPassword
           - name: APPINSIGHTS_INSTRUMENTATIONKEY
-            value: {{ .Values.image.env.appInsights.instrumentationKey }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: appInsightsInstrumentationKey
           - name: AZURE_SEARCH_SERVICE_NAME
-            value: {{ .Values.image.env.search.serviceName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: searchServiceName
           - name: AZURE_SEARCH_INDEX_NAME
-            value: {{ .Values.image.env.search.indexName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: searchIndexName
           - name: AZURE_SEARCH_SERVICE_QUERY_API_KEY
-            value: {{ .Values.image.env.search.serviceQueryApiKey }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                key: searchServiceQueryApiKey
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
