@@ -104,6 +104,7 @@ stages:
               az aks get-credentials \
                   -n $(aks) \
                   -g $(aks)
+              helm dependency update
               helm repo add \
                   $(registryName) \
                   https://$(registryServerName)/helm/v1/repo \
@@ -122,6 +123,9 @@ stages:
                   --set image.env.search.serviceName=$(azureSearchServiceName) \
                   --set image.env.search.indexName=$(azureSearchIndexName) \
                   --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
+                  --set nginx-ingress.defaultBackend.enabled=false \
+                  --set nginx-ingress.controller.image.tag=0.26.1 \
+                  --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: myingtest" \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true

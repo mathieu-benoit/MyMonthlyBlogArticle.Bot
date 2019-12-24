@@ -46,29 +46,6 @@ k8sNamespace=<k8s-namespace-name>
 dnsName=<custom-dns-name>
 hostName=$dnsName.eastus.cloudapp.azure.com # could depend on your DNS, in my case that's the DNS on the Azure IP Address hosted in EastUS.
 
-cd MyMonthlyBlogArticle.Bot/chart
-
-# Install MyMonthlyBlogArticle.Bot
-helm upgrade \
-    --namespace $k8sNamespace \
-    --install \
-    --wait \
-    --set image.repository=$registryName/$botName \
-    --set image.env.microsoftAppId=$appId \
-    --set image.env.microsoftAppPassword=$appPassword \
-    --set image.env.appInsights.instrumentationKey=$appInsightsInstrumentationKey \
-    --set image.env.search.serviceName=$azureSearchServiceName \
-    --set image.env.search.indexName=$azureSearchIndexName \
-    --set image.env.search.serviceQueryApiKey=$azureSearchServiceQueryApiKey \
-    $botName \
-    .
-
-# Install Nginx Ingress Controller
-helm install nginx-ingress stable/nginx-ingress \
-	  -n mymonthlyblogarticlebot \
-    --set controller.image.tag=0.26.1 \
-	  --set service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $dnsName"
-
 #
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml
 kubectl create namespace cert-manager
@@ -80,7 +57,7 @@ helm install \
     jetstack/cert-manager \
     -n cert-manager \
     --version v0.12.0
-kubectl apply -n mymonthlyblogarticlebot -f - <<EOF
+kubectl apply -n $k8sNamespace -f - <<EOF
 apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
 metadata:
@@ -100,6 +77,26 @@ spec:
         ingress:
           class: nginx
 EOF
+
+# Install MyMonthlyBlogArticle.Bot
+cd MyMonthlyBlogArticle.Bot/chart
+helm dependencies update
+helm upgrade \
+    --namespace $k8sNamespace \
+    --install \
+    --wait \
+    --set image.repository=$registryName/$botName \
+    --set image.env.microsoftAppId=$appId \
+    --set image.env.microsoftAppPassword=$appPassword \
+    --set image.env.appInsights.instrumentationKey=$appInsightsInstrumentationKey \
+    --set image.env.search.serviceName=$azureSearchServiceName \
+    --set image.env.search.indexName=$azureSearchIndexName \
+    --set image.env.search.serviceQueryApiKey=$azureSearchServiceQueryApiKey \
+    --set nginx-ingress.defaultBackend.enabled=false \
+    --set nginx-ingress.controller.image.tag=0.26.1 \
+    --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $hostName" \
+    $botName \
+    .
 
 # 
 kubectl apply -n mymonthlyblogarticlebot -f - <<EOF
