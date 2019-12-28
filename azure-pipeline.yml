@@ -15,7 +15,6 @@ variables:
   helmVersion: 3.0.2
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
-  # define 3 more variables: registryName, registryLogin and registryPassword in the Azure pipeline UI definition
 
 stages:
 - stage: 'Build'
@@ -53,6 +52,7 @@ stages:
         helmVersionToInstall: $(helmVersion)
     - bash: |
         cd chart/
+        helm dependency update
         helm package \
             --version $(helmChartVersion) \
             --app-version $(imageTag) \
@@ -79,7 +79,6 @@ stages:
   - deployment: Release
     variables:
       k8sNamespace: $(projectName)
-      # define 4 more variables: aks, aksSpId, aksSpSecret and aksSpTenantId in the Azure pipeline UI definition
     displayName: deploy helm chart into AKS
     pool:
       vmImage: 'ubuntu-16.04'
@@ -104,7 +103,6 @@ stages:
               az aks get-credentials \
                   -n $(aks) \
                   -g $(aks)
-              helm dependency update
               helm repo add \
                   $(registryName) \
                   https://$(registryServerName)/helm/v1/repo \
@@ -123,9 +121,10 @@ stages:
                   --set image.env.search.serviceName=$(azureSearchServiceName) \
                   --set image.env.search.indexName=$(azureSearchIndexName) \
                   --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
+                  --set ingress.hostName=$(hostName) \
                   --set nginx-ingress.defaultBackend.enabled=false \
-                  --set nginx-ingress.controller.image.tag=0.26.1 \
-                  --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: myingtest" \
+                  --set nginx-ingress.controller.image.tag=0.26.2 \
+                  --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $(hostName)" \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true

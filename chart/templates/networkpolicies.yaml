@@ -25,7 +25,7 @@ spec:
         matchLabels:
           app: nginx-ingress
     ports:
-     - port: 80
+     - port: {{ .Values.image.port }}
        protocol: TCP
   egress:
   - to: []
@@ -52,5 +52,5 @@ spec:
         matchLabels:
           app: {{ include "mymonthlyblogarticlebot.name" . }}
     ports:
-     - port: 80
+     - port: {{ .Values.image.port }}
        protocol: TCP
