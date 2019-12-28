@@ -34,32 +34,32 @@ spec:
           - name: MicrosoftAppId
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: microsoftAppId
           - name: MicrosoftAppPassword
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: microsoftAppPassword
           - name: APPINSIGHTS_INSTRUMENTATIONKEY
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: appInsightsInstrumentationKey
           - name: AZURE_SEARCH_SERVICE_NAME
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: searchServiceName
           - name: AZURE_SEARCH_INDEX_NAME
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: searchIndexName
           - name: AZURE_SEARCH_SERVICE_QUERY_API_KEY
             valueFrom:
               secretKeyRef:
-                name: {{ include "mymonthlyblogarticlebot.fullname" . }}
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
                 key: searchServiceQueryApiKey
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

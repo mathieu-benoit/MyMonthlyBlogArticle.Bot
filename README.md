@@ -80,7 +80,7 @@ helm upgrade \
     --set ingress.hostName=$hostName \
     --set nginx-ingress.defaultBackend.enabled=false \
     --set nginx-ingress.controller.image.tag=0.26.2 \
-    --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $hostName" \
+    --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $dnsName" \
     $botName \
     .
 

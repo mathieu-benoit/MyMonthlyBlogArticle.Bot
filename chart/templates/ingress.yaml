@@ -6,7 +6,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "mymonthlyblogarticlebot.fullname" . }}
   labels:
     {{- include "mymonthlyblogarticlebot.labels" . | nindent 4 }}
   annotations:
