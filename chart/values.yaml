@@ -35,7 +35,7 @@ service:
 ingress:
   enabled: true
   class: nginx
-  hostName: chart-example.local
+  hostName: ""
   tls:
     secretName: ingress-tls
 
@@ -60,4 +60,4 @@ affinity: {}
 issuer:
   name: letsencrypt-prod
   acme:
-    email: your@email.com
+    email: ""

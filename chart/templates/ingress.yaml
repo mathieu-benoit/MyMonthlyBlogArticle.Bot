@@ -11,7 +11,7 @@ metadata:
     {{- include "mymonthlyblogarticlebot.labels" . | nindent 4 }}
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.class }}
-    cert-manager.io/issuer: {{ .Values.issuer.acme.email }}
+    cert-manager.io/issuer: {{ .Values.issuer.name }}
 spec:
   tls:
     - hosts:
