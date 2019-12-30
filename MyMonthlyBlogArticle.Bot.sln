@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27906.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyMonthlyBlogArticle.Bot", "MyMonthlyBlogArticle.Bot\MyMonthlyBlogArticle.Bot.csproj", "{A1676A8E-71CC-43DE-BEA9-DAB243A39283}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyMonthlyBlogArticle.Bot", "src\MyMonthlyBlogArticle.Bot.csproj", "{A1676A8E-71CC-43DE-BEA9-DAB243A39283}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMonthlyBlogArticle.Bot.UnitTests", "test\MyMonthlyBlogArticle.Bot.UnitTests.csproj", "{0F99FC85-0609-4D9C-8F21-88033B522D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A1676A8E-71CC-43DE-BEA9-DAB243A39283}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1676A8E-71CC-43DE-BEA9-DAB243A39283}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1676A8E-71CC-43DE-BEA9-DAB243A39283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F99FC85-0609-4D9C-8F21-88033B522D68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F99FC85-0609-4D9C-8F21-88033B522D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F99FC85-0609-4D9C-8F21-88033B522D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F99FC85-0609-4D9C-8F21-88033B522D68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
