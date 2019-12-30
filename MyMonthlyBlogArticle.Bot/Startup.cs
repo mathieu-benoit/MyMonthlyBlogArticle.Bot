@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.ApplicationInsights;
+using Microsoft.Bot.Builder.Integration.ApplicationInsights.Core;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +33,15 @@ namespace MyMonthlyBlogArticle.Bot
             services.AddTransient<IBot, MyMonthlyBlogArticleBot>();
 
             services.AddApplicationInsightsTelemetry();
+            services.AddSingleton<IBotTelemetryClient, BotTelemetryClient>();
+            services.AddSingleton<TelemetryLoggerMiddleware>(sp =>
+            {
+                var telemetryClient = sp.GetService<IBotTelemetryClient>();
+                return new TelemetryLoggerMiddleware(telemetryClient, logPersonalInformation: true);
+            });
+            services.AddSingleton<IMiddleware, TelemetryInitializerMiddleware>();
+            services.AddSingleton<ITelemetryInitializer, OperationCorrelationTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, TelemetryBotIdInitializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

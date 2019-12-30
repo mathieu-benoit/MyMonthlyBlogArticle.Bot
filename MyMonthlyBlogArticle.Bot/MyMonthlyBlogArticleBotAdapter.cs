@@ -8,10 +8,13 @@ namespace MyMonthlyBlogArticle.Bot
 {
     public class MyMonthlyBlogArticleBotAdapter : BotFrameworkHttpAdapter
     {
-        public MyMonthlyBlogArticleBotAdapter(IConfiguration configuration, ILogger<BotFrameworkHttpAdapter> logger)
+        public MyMonthlyBlogArticleBotAdapter(IConfiguration configuration, ILogger<BotFrameworkHttpAdapter> logger, IMiddleware middleware)
             : base(configuration, logger)
         {
-            Use(new ShowTypingMiddleware(1));
+            Use(new ShowTypingMiddleware());
+
+            // Need to add this according to https://docs.microsoft.com/azure/bot-service/bot-builder-telemetry
+            Use(middleware);
 
             OnTurnError = async (turnContext, exception) =>
             {
