@@ -61,3 +61,6 @@ issuer:
   name: letsencrypt-prod
   acme:
     email: ""
+
+networkpolicies:
+  enabled: false

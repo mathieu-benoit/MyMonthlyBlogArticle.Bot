@@ -122,11 +122,12 @@ stages:
                   --set image.env.search.serviceName=$(azureSearchServiceName) \
                   --set image.env.search.indexName=$(azureSearchIndexName) \
                   --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
+                  --set networkpolicies.enabled=$(networkPoliciesEnabled) \
                   --set ingress.hostName=$(hostName) \
                   --set issuer.acme.email=$(issuerEmail) \
                   --set nginx-ingress.defaultBackend.enabled=false \
                   --set nginx-ingress.controller.image.tag=0.26.2 \
-                  --set nginx-ingress.controller.service.annotations[0]="service.beta.kubernetes.io/azure-dns-label-name: $(dnsName)" \
+                  --set nginx-ingress.controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsName)" \
                   $(projectName) \
                   $(registryName)/$(projectName)
             failOnStderr: true
