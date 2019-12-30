@@ -49,4 +49,5 @@ Selector labels
 {{- define "mymonthlyblogarticlebot.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "mymonthlyblogarticlebot.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "mymonthlyblogarticlebot.name" . }}
 {{- end -}}

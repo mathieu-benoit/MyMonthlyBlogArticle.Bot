@@ -28,21 +28,39 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.image.port }}
               protocol: TCP
           env:
           - name: MicrosoftAppId
-            value: {{ .Values.image.env.microsoftAppId }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: microsoftAppId
           - name: MicrosoftAppPassword
-            value: {{ .Values.image.env.microsoftAppPassword }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: microsoftAppPassword
           - name: APPINSIGHTS_INSTRUMENTATIONKEY
-            value: {{ .Values.image.env.appInsights.instrumentationKey }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: appInsightsInstrumentationKey
           - name: AZURE_SEARCH_SERVICE_NAME
-            value: {{ .Values.image.env.search.serviceName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: searchServiceName
           - name: AZURE_SEARCH_INDEX_NAME
-            value: {{ .Values.image.env.search.indexName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: searchIndexName
           - name: AZURE_SEARCH_SERVICE_QUERY_API_KEY
-            value: {{ .Values.image.env.search.serviceQueryApiKey }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "mymonthlyblogarticlebot.name" . }}
+                key: searchServiceQueryApiKey
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
