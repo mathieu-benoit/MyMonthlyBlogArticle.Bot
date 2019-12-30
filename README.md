@@ -99,7 +99,7 @@ az network public-ip update --ids $ingressAzurePublicIpId --dns-name $dnsName
 
 Once the Azure Bot Service deployed you could leverage the Bot Analytics feature with Application Insights like described [here](https://docs.microsoft.com/azure/bot-service/bot-service-manage-analytics).
 
-Additionally to that, you could perform different queries to retrieve information logged from the Bot Framework into Application Insights:
+Additionally to that, you could perform different queries to retrieve information logged from the Bot Framework into Application Insights where additional telemetry has been setup like described [here](https://docs.microsoft.com/azure/bot-service/bot-builder-telemetry).
 
 Get all the requests:
 ```
@@ -107,27 +107,43 @@ requests
 | order by timestamp desc
 ```
 
-Get all the search by month performed by the end users (because `telemetry.TrackEvent();` has been added in the code):
+Get all the requests about initializing conversations:
 ```
-//all searches
-customEvents
-| order by timestamp desc 
-| where name == "Search" or name == "Hello"
+requests
+| where tostring(customDimensions.activityType) == "conversationUpdate"
+| order by timestamp desc
+```
 
-//count of items by type
-customEvents
-| where name == "Search" 
-| summarize count() by tostring(customDimensions.SearchType)
+Get all the requests about messages sent:
+```
+requests
+| where tostring(customDimensions.activityType) == "message"
+| order by timestamp desc
+```
 
-//average of items returned by type
-customEvents
-| where name == "Search" 
-| summarize avg(todouble(customDimensions.ResultCount)) by tostring(customDimensions.SearchType)
+Display on a time chart the durations of the message requests:
+```
+requests
+| where tostring(customDimensions.activityType) == "message"
+| project duration, timestamp, appId
+| render timechart
+```
 
-//count of search by query term
-customEvents
-| where name == "Search" 
-| summarize count() by tostring(customDimensions.QueryTerms)
+Get all the exceptions:
+```
+exceptions
+| order by timestamp desc
+```
 
-//TODO: leverage ElaspedTime + Most used SearchTerm
+Get all the customEvents:
+```
+customEvents
+| order by timestamp desc
+```
+
+Count of search by query term:
+```
+customEvents
+| where name == "BotMessageReceived" 
+| summarize count() by tostring(customDimensions.text)
 ```
