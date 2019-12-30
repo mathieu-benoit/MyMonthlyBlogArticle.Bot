@@ -64,6 +64,8 @@ dnsName=<custom-dns-name>
 hostName=$dnsName.eastus.cloudapp.azure.com # could depend on your DNS, in my case that's the DNS on the Azure IP Address hosted in EastUS.
 issuerEmail=<your-email-for-certificate>
 
+kubectl create namespace $k8sNamespace
+
 # Install MyMonthlyBlogArticle.Bot
 cd MyMonthlyBlogArticle.Bot/chart
 helm dependencies update
