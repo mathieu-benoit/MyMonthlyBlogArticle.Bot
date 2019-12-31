@@ -1,4 +1,4 @@
-output "resource_group_id" {
-  description = "Example of output to get the resource group id"
-  value       = "${azurerm_resource_group.rg.id}"
+output "app_insights_instrumentation_key" {
+  description = "Application Insights InstrumentationKey"
+  value       = azurerm_application_insights.ai.instrumentation_key
 }
