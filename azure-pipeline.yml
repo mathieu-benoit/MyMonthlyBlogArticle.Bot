@@ -16,14 +16,45 @@ variables:
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
   terraformVersion: 0.12.18
-  tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
   helmChartVersionArtifactName: 'helm-chart-version'
+  location: eastus
+  hostName: $(dnsName).$(location).cloudapp.azure.com
 
 stages:
 - stage: 'Build'
   displayName: 'Build'
   jobs:
+  - job: 'Package_Terraform_Templates'
+    variables:
+      imageTag: $(build.buildId)
+    displayName: 'package and expose terraform templates'
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: $(terraformVersion)
+    - script: |
+        cd tf
+        terraform init \
+            -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+            -backend-config="container_name=$(tfStateStorageContainerName)"
+        terraform plan \
+            -var bot_name=$(projectName) \
+            -var location=$(location) \
+            -var microsoft_app_id=$(microsoftAppId) \
+            -var bot_endpoint=https://$(hostName)/api/messages \
+            -out=tf-plan
+      displayName: 'terraform plan'
+      env:
+          ARM_TENANT_ID: $(tenantId)
+          ARM_SUBSCRIPTION_ID: $(subscriptionId)
+          ARM_CLIENT_ID: $(clientId)
+          ARM_CLIENT_SECRET: $(clientSecret)
+          ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
+    - publish: '$(system.defaultWorkingDirectory)/tf'
+      artifact: $(tfPlanArtifactName)
   - job: 'Build_Container_Image'
     variables:
       imageTag: $(build.buildId)
@@ -102,11 +133,8 @@ stages:
 - stage: 'Release'
   displayName: 'Release'
   jobs:
-  - deployment: 'Deploy_Helm_Chart'
-    variables:
-      k8sNamespace: $(projectName)
-      hostName: $(dnsName).eastus.cloudapp.azure.com
-    displayName: 'deploy helm chart into aks'
+  - deployment: 'Deploy_Terraform_Templates'
+    displayName: 'deploy terraform templates'
     pool:
       vmImage: 'ubuntu-16.04'
     environment: release-$(projectName)
@@ -127,34 +155,56 @@ stages:
                   -u $(aksSpId) \
                   -p $(aksSpSecret) \
                   --tenant $(aksSpTenantId)
-              az aks get-credentials \
-                  -n $(aks) \
-                  -g $(aks)
-              helm repo add \
-                  $(registryName) \
-                  https://$(registryServerName)/helm/v1/repo \
-                  --username $(registryLogin) \
-                  --password $(registryPassword)
-              helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/$(helmChartVersionArtifactName)/variables.json -r)
-              helm upgrade \
-                  --namespace $(k8sNamespace) \
-                  --install \
-                  --wait \
-                  --version $helmChartVersion \
-                  --set image.repository=$(registryServerName)/$(projectName) \
-                  --set image.env.microsoftAppId=$(microsoftAppId) \
-                  --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
-                  --set image.env.appInsights.instrumentationKey=$(appInsightsInstrumentationKey) \
-                  --set image.env.search.serviceName=$(azureSearchServiceName) \
-                  --set image.env.search.indexName=$(azureSearchIndexName) \
-                  --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
-                  --set networkpolicies.enabled=$(networkPoliciesEnabled) \
-                  --set ingress.hostName=$(hostName) \
-                  --set issuer.acme.email=$(issuerEmail) \
-                  --set nginx-ingress.defaultBackend.enabled=false \
-                  --set nginx-ingress.controller.image.tag=0.26.2 \
-                  --set nginx-ingress.controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsName) \
-                  $(projectName) \
-                  $(registryName)/$(projectName)
             failOnStderr: true
             displayName: 'deploy helm chart'
+  - job: 'Deploy_Helm_Chart'
+    variables:
+      k8sNamespace: $(projectName)
+    displayName: 'deploy helm chart into aks'
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - checkout: none
+    - task: HelmInstaller@1
+      displayName: 'install helm'
+      inputs:
+        helmVersionToInstall: $(helmVersion)
+    - download: current
+      artifact: $(helmChartVersionArtifactName)
+    - bash: |
+        az login \
+            --service-principal \
+            -u $(aksSpId) \
+            -p $(aksSpSecret) \
+            --tenant $(aksSpTenantId)
+        az aks get-credentials \
+            -n $(aks) \
+            -g $(aks)
+        helm repo add \
+            $(registryName) \
+            https://$(registryServerName)/helm/v1/repo \
+            --username $(registryLogin) \
+            --password $(registryPassword)
+        helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/$(helmChartVersionArtifactName)/variables.json -r)
+        helm upgrade \
+            --namespace $(k8sNamespace) \
+            --install \
+            --wait \
+            --version $helmChartVersion \
+            --set image.repository=$(registryServerName)/$(projectName) \
+            --set image.env.microsoftAppId=$(microsoftAppId) \
+            --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
+            --set image.env.appInsights.instrumentationKey=$(appInsightsInstrumentationKey) \
+            --set image.env.search.serviceName=$(azureSearchServiceName) \
+            --set image.env.search.indexName=$(azureSearchIndexName) \
+            --set image.env.search.serviceQueryApiKey=$(azureSearchServiceQueryApiKey) \
+            --set networkpolicies.enabled=$(networkPoliciesEnabled) \
+            --set ingress.hostName=$(hostName) \
+            --set issuer.acme.email=$(issuerEmail) \
+            --set nginx-ingress.defaultBackend.enabled=false \
+            --set nginx-ingress.controller.image.tag=0.26.2 \
+            --set nginx-ingress.controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsName) \
+            $(projectName) \
+            $(registryName)/$(projectName)
+      failOnStderr: true
+      displayName: 'deploy helm chart'
