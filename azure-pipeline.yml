@@ -15,16 +15,19 @@ variables:
   helmVersion: 3.0.2
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
+  terraformVersion: 0.12.18
+  tfFilesArtifactName: 'tf-files'
+  tfPlanArtifactName: 'tf-plan'
+  helmChartVersionArtifactName: 'helm-chart-version'
 
 stages:
 - stage: 'Build'
   displayName: 'Build'
   jobs:
-  - job: 'Build'
+  - job: 'Build_Container_Image'
     variables:
       imageTag: $(build.buildId)
-      helmChartVersion: $(build.buildId)
-    displayName: 'Build'
+    displayName: 'build and push container image'
     pool:
       vmImage: $(vmImage)
     steps:
@@ -61,6 +64,14 @@ stages:
         docker push $(registryServerName)/$(projectName):$(imageTag)
       failOnStderr: true
       displayName: 'docker push'
+  - job: 'Package_Helm_Chart'
+    variables:
+      imageTag: $(build.buildId)
+      helmChartVersion: $(build.buildId)
+    displayName: 'package and push helm chart'
+    pool:
+      vmImage: $(vmImage)
+    steps:
     - task: HelmInstaller@1
       displayName: 'install helm'
       inputs:
@@ -87,15 +98,15 @@ stages:
       name: helmPush
       displayName: 'az acr helm push'
     - publish: $(build.artifactStagingDirectory)
-      artifact: build-artifact
+      artifact: $(helmChartVersionArtifactName)
 - stage: 'Release'
   displayName: 'Release'
   jobs:
-  - deployment: Release
+  - deployment: 'Deploy_Helm_Chart'
     variables:
       k8sNamespace: $(projectName)
       hostName: $(dnsName).eastus.cloudapp.azure.com
-    displayName: deploy helm chart into AKS
+    displayName: 'deploy helm chart into aks'
     pool:
       vmImage: 'ubuntu-16.04'
     environment: release-$(projectName)
@@ -109,7 +120,7 @@ stages:
             inputs:
               helmVersionToInstall: $(helmVersion)
           - download: current
-            artifact: build-artifact
+            artifact: $(helmChartVersionArtifactName)
           - bash: |
               az login \
                   --service-principal \
@@ -124,7 +135,7 @@ stages:
                   https://$(registryServerName)/helm/v1/repo \
                   --username $(registryLogin) \
                   --password $(registryPassword)
-              helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/build-artifact/variables.json -r)
+              helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/$(helmChartVersionArtifactName)/variables.json -r)
               helm upgrade \
                   --namespace $(k8sNamespace) \
                   --install \
