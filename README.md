@@ -29,7 +29,6 @@ appInsightsInstrumentationKey=<app-insights-instrumentation-key>
 ## Deploy with Docker
 
 ```
-cd MyMonthlyBlogArticle.Bot/MyMonthlyBlogArticle.Bot/
 docker build \
     -t $botName \
     '
@@ -67,7 +66,7 @@ issuerEmail=<your-email-for-certificate>
 kubectl create namespace $k8sNamespace
 
 # Install MyMonthlyBlogArticle.Bot
-cd MyMonthlyBlogArticle.Bot/chart
+cd chart
 helm dependencies update
 helm upgrade \
     --namespace $k8sNamespace \

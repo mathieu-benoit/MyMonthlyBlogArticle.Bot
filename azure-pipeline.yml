@@ -24,13 +24,28 @@ stages:
     variables:
       imageTag: $(build.buildId)
       helmChartVersion: $(build.buildId)
-      projectFolder: 'MyMonthlyBlogArticle.Bot'
     displayName: 'Build'
     pool:
       vmImage: $(vmImage)
     steps:
     - bash: |
-        cd $(projectFolder)
+        docker build \
+            -t $(projectName)-unittests:$(imageTag) \
+            --target unittests \
+            .
+        id=$(docker create $(projectName)-unittests:$(imageTag))
+        docker cp $id:/app/test/TestResults/ ./TestResults
+        docker rm $id
+      displayName: 'run unit tests'
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()  
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+        searchFolder: '$(System.DefaultWorkingDirectory)/TestResults'
+        publishRunAttachments: true
+      displayName: 'publish test results'
+    - bash: |
         docker build \
             -t $(registryServerName)/$(projectName):$(imageTag) \
             .
