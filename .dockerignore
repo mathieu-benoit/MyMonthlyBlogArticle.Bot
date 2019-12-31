@@ -8,6 +8,7 @@
 **/*.*proj.user
 **/azds.yaml
 **/chart
+**/tf
 **/bin
 **/obj
 **/Dockerfile
