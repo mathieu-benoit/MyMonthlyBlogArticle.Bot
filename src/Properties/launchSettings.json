@@ -12,7 +12,13 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "MicrosoftAppId": "",
+        "AZURE_SEARCH_INDEX_NAME": "",
+        "MicrosoftAppPassword": "",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_SEARCH_SERVICE_QUERY_API_KEY": "",
+        "AZURE_SEARCH_SERVICE_NAME": "",
+        "APPINSIGHTS_INSTRUMENTATIONKEY": ""
       }
     },
     "MyMonthlyBlogArticle.Bot": {
