@@ -20,6 +20,7 @@ variables:
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
   hostName: $(dnsName).$(location).cloudapp.azure.com
+  nginxIngressVersion: 0.26.2
 
 stages:
 - stage: 'Build'
@@ -202,7 +203,7 @@ stages:
             --set ingress.hostName=$(hostName) \
             --set issuer.acme.email=$(issuerEmail) \
             --set nginx-ingress.defaultBackend.enabled=false \
-            --set nginx-ingress.controller.image.tag=0.26.2 \
+            --set nginx-ingress.controller.image.tag=$(nginxIngressVersion) \
             --set nginx-ingress.controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsName) \
             $(projectName) \
             $(registryName)/$(projectName)
