@@ -70,7 +70,7 @@ namespace MyMonthlyBlogArticle.Bot.Bots
             }
         }
 
-        public async Task PostRssFeedsAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken, string date = null, string month = null, string text = null)
+        private async Task PostRssFeedsAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken, string date = null, string month = null, string text = null)
         {
             var results = GetRssFeeds(date, month, text);
             var resultsCount = results.Count.Value;
