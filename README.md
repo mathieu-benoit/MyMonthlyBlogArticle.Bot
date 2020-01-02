@@ -2,15 +2,13 @@
 
 # MyMonthlyBlogArticle.Bot
 
-This repository contains all the code and deployment setup related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html).
+This repository contains all the code and deployment scripts related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html) created on April 2018. This repository actually got updated with a more Cloud Native App approach by leveraging associated latest and greatest technologies and features such as Docker, ASP.NET Core 3.1, Helm 3, Kubernetes and Terraform, check this entire story here: [My Bot just got powered by .NET Core 3.1, Docker, Kubernetes and Terraform](https://alwaysupalwayson.blogspot.com/2019/12/my-bot-just-got-powered-by-net-core-31.html).
 
 ![Flow & Architecture diagram](./FlowAndArchitecture.PNG "Flow & Architecture diagram")
 
 # Prerequisities
 
-First, you need to register your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
-
-_TIPS: you could put these values in [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis) for more security and to be able to automate more. You could then [access the key/values pairs by modifying the ARM Template accordingly](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-keyvault-parameter)._
+You need to register your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
 
 # Deploy
 
