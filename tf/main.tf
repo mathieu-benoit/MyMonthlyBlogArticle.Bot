@@ -7,12 +7,14 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
+/*
 resource "azurerm_management_lock" "lock" {
   name       = "CanNotDelete"
   scope      = azurerm_resource_group.rg.id
   lock_level = "CanNotDelete"
   notes      = "This Resource Group and its Resources can't be deleted."
 }
+*/
 
 resource "azurerm_application_insights" "ai" {
   name                = var.bot_name
@@ -40,8 +42,10 @@ resource "azurerm_bot_channels_registration" "bot" {
   developer_app_insights_application_id = azurerm_application_insights.ai.app_id
 }
 
+/*
 resource "azurerm_bot_channel_ms_teams" "teams_channel" {
   bot_name            = azurerm_bot_channels_registration.bot.name
   location            = azurerm_bot_channels_registration.bot.location
   resource_group_name = azurerm_resource_group.rg.name
 }
+*/
