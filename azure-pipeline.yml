@@ -47,6 +47,7 @@ stages:
             -var microsoft_app_id=$(microsoftAppId) \
             -var bot_endpoint=https://$(hostName)/api/messages \
             -out=tf-plan
+      failOnStderr: true
       displayName: 'terraform plan'
       env:
           ARM_TENANT_ID: $(tfTenantId)
@@ -146,12 +147,16 @@ stages:
           - checkout: none
           - download: current
             artifact: $(tfPlanArtifactName)
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: $(terraformVersion)
           - script: |
               chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
               terraform apply tf-plan
               appInsightsInstrumentationKey=$(terraform output app_insights_instrumentation_key)
               echo "##vso[task.setvariable variable=appInsightsInstrumentationKey;isOutput=true]$(appInsightsInstrumentationKey)"
             workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
+            failOnStderr: true
             name: Terraform_Apply
             displayName: 'Terraform apply'
             env:
