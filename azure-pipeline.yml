@@ -49,10 +49,10 @@ stages:
             -out=tf-plan
       displayName: 'terraform plan'
       env:
-          ARM_TENANT_ID: $(tenantId)
-          ARM_SUBSCRIPTION_ID: $(subscriptionId)
-          ARM_CLIENT_ID: $(clientId)
-          ARM_CLIENT_SECRET: $(clientSecret)
+          ARM_TENANT_ID: $(tfTenantId)
+          ARM_SUBSCRIPTION_ID: $(tfSubscriptionId)
+          ARM_CLIENT_ID: $(tfClientId)
+          ARM_CLIENT_SECRET: $(tfClientSecret)
           ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
     - publish: '$(system.defaultWorkingDirectory)/tf'
       artifact: $(tfPlanArtifactName)
@@ -134,7 +134,7 @@ stages:
 - stage: 'Release'
   displayName: 'Release'
   jobs:
-  - deployment: 'Deploy_Terraform_Templates'
+  - deployment: Deploy_Terraform_Templates
     displayName: 'deploy terraform templates'
     pool:
       vmImage: 'ubuntu-16.04'
@@ -144,23 +144,27 @@ stages:
         deploy:
           steps:
           - checkout: none
-          - task: HelmInstaller@1
-            displayName: 'install helm'
-            inputs:
-              helmVersionToInstall: $(helmVersion)
           - download: current
-            artifact: $(helmChartVersionArtifactName)
-          - bash: |
-              az login \
-                  --service-principal \
-                  -u $(aksSpId) \
-                  -p $(aksSpSecret) \
-                  --tenant $(aksSpTenantId)
-            failOnStderr: true
-            displayName: 'deploy helm chart'
-  - job: 'Deploy_Helm_Chart'
+            artifact: $(tfPlanArtifactName)
+          - script: |
+              chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
+              terraform apply tf-plan
+              appInsightsInstrumentationKey=$(terraform output app_insights_instrumentation_key)
+              echo "##vso[task.setvariable variable=appInsightsInstrumentationKey;isOutput=true]$(appInsightsInstrumentationKey)"
+            workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
+            name: Terraform_Apply
+            displayName: 'Terraform apply'
+            env:
+                ARM_TENANT_ID: $(tfTenantId)
+                ARM_SUBSCRIPTION_ID: $(tfSubscriptionId)
+                ARM_CLIENT_ID: $(tfClientId)
+                ARM_CLIENT_SECRET: $(tfClientSecret)
+                ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
+  - job: Deploy_Helm_Chart
+    dependsOn: Deploy_Terraform_Templates
     variables:
       k8sNamespace: $(projectName)
+      appInsightsInstrumentationKey: $[ dependencies.Deploy_Terraform_Templates.outputs['Terraform_Apply.appInsightsInstrumentationKey'] ]
     displayName: 'deploy helm chart into aks'
     pool:
       vmImage: $(vmImage)
