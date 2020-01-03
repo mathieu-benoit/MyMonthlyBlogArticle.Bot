@@ -184,6 +184,7 @@ stages:
       artifact: $(helmChartVersionArtifactName)
     - bash: |
         echo $(appInsightsInstrumentationKey)
+        env | grep appInsightsInstrumentationKey
         az login \
             --service-principal \
             -u $(aksSpId) \
