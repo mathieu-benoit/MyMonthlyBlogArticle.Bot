@@ -155,6 +155,7 @@ stages:
               terraform apply tf-plan
               appInsightsInstrumentationKey=$(terraform output app_insights_instrumentation_key)
               echo "##vso[task.setvariable variable=appInsightsInstrumentationKey;isOutput=true]$appInsightsInstrumentationKey"
+              echo $appInsightsInstrumentationKey
             workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
             failOnStderr: true
             name: Terraform_Apply
@@ -182,6 +183,7 @@ stages:
     - download: current
       artifact: $(helmChartVersionArtifactName)
     - bash: |
+        echo $(appInsightsInstrumentationKey)
         az login \
             --service-principal \
             -u $(aksSpId) \
