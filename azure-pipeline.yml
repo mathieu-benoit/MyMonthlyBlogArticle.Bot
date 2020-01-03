@@ -169,7 +169,7 @@ stages:
     dependsOn: Deploy_Terraform_Templates
     variables:
       k8sNamespace: $(projectName)
-      appInsightsInstrumentationKey: $[ dependencies.Deploy_Terraform_Templates.outputs['Terraform_Apply.appInsightsInstrumentationKey'] ]
+      appInsightsInstrumentationKey: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.appInsightsInstrumentationKey'] ]
     displayName: 'deploy helm chart into aks'
     pool:
       vmImage: $(vmImage)
