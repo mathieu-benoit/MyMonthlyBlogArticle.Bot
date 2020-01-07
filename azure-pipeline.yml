@@ -19,11 +19,11 @@ variables:
   tfPlanArtifactName: 'tf-plan'
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
-  hostName: $(dnsName).$(location).cloudapp.azure.com
+  hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
   nginxIngressVersion: 0.26.2
   # Additional variables needed to be defined in the Azure Pipeline definition:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
-  # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksSpId, aksSpSecret and aksSpTenantId.
+  # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
 
 stages:
 - stage: 'Build'
