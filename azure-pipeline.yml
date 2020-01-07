@@ -21,6 +21,9 @@ variables:
   location: eastus
   hostName: $(dnsName).$(location).cloudapp.azure.com
   nginxIngressVersion: 0.26.2
+  # Additional variables needed to be defined in the Azure Pipeline definition:
+  # For Build/CI stage: registryName, registryLogin and registryPassword.
+  # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksSpId, aksSpSecret and aksSpTenantId.
 
 stages:
 - stage: 'Build'
@@ -188,8 +191,8 @@ stages:
             -p $(aksSpSecret) \
             --tenant $(aksSpTenantId)
         az aks get-credentials \
-            -n $(aks) \
-            -g $(aks)
+            -n $(aksName) \
+            -g $(aksResourceGroupName)
         helm repo add \
             $(registryName) \
             https://$(registryServerName)/helm/v1/repo \
