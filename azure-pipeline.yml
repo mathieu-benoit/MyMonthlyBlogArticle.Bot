@@ -15,7 +15,7 @@ variables:
   helmVersion: 3.0.2
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
-  terraformVersion: 0.12.18
+  terraformVersion: 0.12.19
   tfPlanArtifactName: 'tf-plan'
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
