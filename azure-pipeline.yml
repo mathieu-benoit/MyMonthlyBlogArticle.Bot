@@ -20,7 +20,7 @@ variables:
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
   hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
-  nginxIngressVersion: 0.26.2
+  nginxIngressVersion: 0.27.1
   # Additional variables needed to be defined in the Azure Pipeline definition:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
