@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/MyMonthlyBlogArticle.Bot?branchName=dotnetcore)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=111&branchName=dotnetcore)
+[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/MyMonthlyBlogArticle.Bot?branchName=master)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=111&branchName=master)
 
 # MyMonthlyBlogArticle.Bot
 
