@@ -42,7 +42,7 @@ You could now expose your Docker image in a Container registry, with the command
 As a prerequisities, you need to install `cert-manager`:
 ```
 # Install cert-manager
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.13/deploy/manifests/00-crds.yaml
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 helm repo add jetstack https://charts.jetstack.io
@@ -51,7 +51,7 @@ helm install \
     cert-manager \
     jetstack/cert-manager \
     -n cert-manager \
-    --version v0.12.0
+    --version v0.13.0
 ```
 
 You could then run the `helm upgrade` command below against your Kuberentes cluster:
