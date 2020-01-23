@@ -11,7 +11,7 @@ trigger:
 pr: none
 
 variables:
-  vmImage: 'ubuntu-16.04'
+  vmImage: 'ubuntu-18.04'
   helmVersion: 3.0.2
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
