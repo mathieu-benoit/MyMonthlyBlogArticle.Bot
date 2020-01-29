@@ -16,7 +16,7 @@ RUN dotnet test --logger:trx
 # Temporary Publish image
 FROM build AS publish
 WORKDIR /app/src
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out --no-restore
 
 # Runtime image
 # https://mcr.microsoft.com/v2/dotnet/core/aspnet/tags/list
