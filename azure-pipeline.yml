@@ -12,7 +12,7 @@ pr: none
 
 variables:
   vmImage: 'ubuntu-18.04'
-  helmVersion: 3.0.2
+  helmVersion: 3.0.3
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
   terraformVersion: 0.12.20
