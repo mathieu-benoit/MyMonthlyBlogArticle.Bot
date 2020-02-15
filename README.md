@@ -10,8 +10,6 @@ This repository contains all the code and deployment scripts related to this pro
 
 You need an Azure Kubernetes Service (AKS) and the recommended K8S version is 1.15.7+ since the mecanism to set the DNS name on the Public Azure IP Address got working back since then.
 
-You need to register your Bot Application in https://apps.dev.microsoft.com. From there, you should get 2 values for the deployment process below: `Application Id` and `Application Secret`.
-
 # Deploy
 
 You could deploy this bot locally with VS Code or Visual Studio or even `dotnet` command line. Other ways explained below are to deploy it with `Docker` or `Helm`.
