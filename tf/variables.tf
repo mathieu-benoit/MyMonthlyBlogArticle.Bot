@@ -11,10 +11,6 @@ variable "bot_endpoint" {
   default     = "https://endpoint.com/api/messages"
 }
 
-variable "microsoft_app_id" {
-  description = "The Bot's Microsoft Application Id."
-}
-
 variable "bot_display_name" {
   description = "The Bot's Display Name."
   default     = "Microsoft Azure News & Updates"
