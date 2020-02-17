@@ -156,7 +156,7 @@ stages:
             inputs:
               terraformVersion: $(terraformVersion)
           - script: |
-              chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
+              chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
               terraform apply tf-plan
               appInsightsInstrumentationKey=$(terraform output app_insights_instrumentation_key)
               echo "##vso[task.setvariable variable=appInsightsInstrumentationKey;isOutput=true]$appInsightsInstrumentationKey"
