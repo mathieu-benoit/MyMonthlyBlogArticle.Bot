@@ -3,7 +3,7 @@ resource "azurerm_bot_channels_registration" "bot" {
   location                              = "global"
   resource_group_name                   = azurerm_resource_group.rg.name
   display_name                          = var.bot_display_name
-  microsoft_app_id                      = var.microsoft_app_id
+  microsoft_app_id                      = azuread_application.app.application_id
   sku                                   = "F0"
   endpoint                              = var.bot_endpoint
   developer_app_insights_key            = azurerm_application_insights.ai.instrumentation_key
