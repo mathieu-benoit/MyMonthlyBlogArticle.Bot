@@ -45,11 +45,12 @@ kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
-helm install \
+helm upgrade \
     cert-manager \
     jetstack/cert-manager \
+    --install \
     -n cert-manager \
-    --version v0.13.0
+    --version v0.13.1
 ```
 
 You could then run the `helm upgrade` command below against your Kuberentes cluster:
