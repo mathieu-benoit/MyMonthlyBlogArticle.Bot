@@ -11,7 +11,6 @@ trigger:
 pr: none
 
 variables:
-  vmImage: 'ubuntu-18.04'
   helmVersion: 3.1.1
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
@@ -25,6 +24,10 @@ variables:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
 
+pool:
+  #name: myadoagent
+  imageName: ubuntu-latest
+
 stages:
 - stage: 'Build'
   displayName: 'Build'
@@ -33,8 +36,6 @@ stages:
     variables:
       imageTag: $(build.buildId)
     displayName: 'package and expose terraform templates'
-    pool:
-      vmImage: $(vmImage)
     steps:
     - task: TerraformInstaller@0
       inputs:
@@ -44,6 +45,7 @@ stages:
         terraform init \
             -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
             -backend-config="container_name=$(projectName)"
+        chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
         terraform plan \
             -var bot_name=$(projectName) \
             -var location=$(location) \
@@ -63,8 +65,6 @@ stages:
     variables:
       imageTag: $(build.buildId)
     displayName: 'build and push container image'
-    pool:
-      vmImage: $(vmImage)
     steps:
     - bash: |
         docker build \
@@ -105,8 +105,6 @@ stages:
       imageTag: $(build.buildId)
       helmChartVersion: $(build.buildId)
     displayName: 'package and push helm chart'
-    pool:
-      vmImage: $(vmImage)
     steps:
     - task: HelmInstaller@1
       displayName: 'install helm'
@@ -142,8 +140,6 @@ stages:
   jobs:
   - deployment: Deploy_Terraform_Templates
     displayName: 'deploy terraform templates'
-    pool:
-      vmImage: 'ubuntu-16.04'
     environment: release-$(projectName)
     strategy:
       runOnce:
@@ -182,8 +178,6 @@ stages:
       microsoftAppId: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppId'] ]
       microsoftAppPassword: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppPassword'] ]
     displayName: 'deploy helm chart into aks'
-    pool:
-      vmImage: $(vmImage)
     steps:
     - checkout: none
     - task: HelmInstaller@1
