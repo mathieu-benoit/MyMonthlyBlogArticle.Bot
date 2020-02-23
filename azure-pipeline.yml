@@ -49,6 +49,7 @@ stages:
         terraform plan \
             -var bot_name=$(projectName) \
             -var location=$(location) \
+            -var microsoft_app_id=$(microsoftAppId) \
             -var bot_endpoint=https://$(hostName)/api/messages \
             -out=tf-plan
       failOnStderr: true
@@ -156,10 +157,10 @@ stages:
               terraform apply tf-plan
               appInsightsInstrumentationKey=$(terraform output app_insights_instrumentation_key)
               echo "##vso[task.setvariable variable=appInsightsInstrumentationKey;isOutput=true]$appInsightsInstrumentationKey"
-              microsoftAppId=$(terraform output azuread_application_application_id)
-              echo "##vso[task.setvariable variable=microsoftAppId;isOutput=true]$microsoftAppId"
-              microsoftAppPassword=$(terraform output azuread_application_application_secret)
-              echo "##vso[task.setvariable variable=microsoftAppPassword;isOutput=true]$microsoftAppPassword"
+              #microsoftAppId=$(terraform output azuread_application_application_id)
+              #echo "##vso[task.setvariable variable=microsoftAppId;isOutput=true]$microsoftAppId"
+              #microsoftAppPassword=$(terraform output azuread_application_application_secret)
+              #echo "##vso[task.setvariable variable=microsoftAppPassword;isOutput=true]$microsoftAppPassword"
             workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
             failOnStderr: true
             name: Terraform_Apply
@@ -175,8 +176,8 @@ stages:
     variables:
       k8sNamespace: $(projectName)
       appInsightsInstrumentationKey: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.appInsightsInstrumentationKey'] ]
-      microsoftAppId: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppId'] ]
-      microsoftAppPassword: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppPassword'] ]
+      #microsoftAppId: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppId'] ]
+      #microsoftAppPassword: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppPassword'] ]
     displayName: 'deploy helm chart into aks'
     steps:
     - checkout: none

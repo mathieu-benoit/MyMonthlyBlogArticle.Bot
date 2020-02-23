@@ -16,6 +16,10 @@ variable "bot_display_name" {
   default     = "Microsoft Azure News & Updates"
 }
 
-variable "azuread_application_password_end_date" {
-  default = "2020-12-31T00:00:00.00Z"
+variable "microsoft_app_id" {	
+  description = "The Bot's Microsoft Application Id."	
 }
+
+#variable "azuread_application_password_end_date" {
+#  default = "2020-12-31T00:00:00.00Z"
+#}
