@@ -1,6 +1,6 @@
 # Temporary Build image
 # https://mcr.microsoft.com/v2/dotnet/core/sdk/tags/list
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.101-alpine AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.102-alpine AS build
 WORKDIR /app
 COPY *.sln .
 COPY src/*.csproj ./src/
