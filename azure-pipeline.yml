@@ -36,6 +36,7 @@ stages:
     variables:
       imageTag: $(build.buildId)
     displayName: 'package and expose terraform templates'
+    condition: and(succeeded(), eq(variables['deployInfrastucture'], 'true'))
     steps:
     - task: TerraformInstaller@0
       inputs:
@@ -66,6 +67,7 @@ stages:
     variables:
       imageTag: $(build.buildId)
     displayName: 'build and push container image'
+    condition: and(succeeded(), eq(variables['deployContainer'], 'true'))
     steps:
     - bash: |
         docker build \
@@ -106,6 +108,7 @@ stages:
       imageTag: $(build.buildId)
       helmChartVersion: $(build.buildId)
     displayName: 'package and push helm chart'
+    condition: and(succeeded(), eq(variables['deployContainer'], 'true'))
     steps:
     - task: HelmInstaller@1
       displayName: 'install helm'
@@ -142,6 +145,7 @@ stages:
   - deployment: Deploy_Terraform_Templates
     displayName: 'deploy terraform templates'
     environment: release-$(projectName)
+    condition: and(succeeded(), eq(variables['deployInfrastucture'], 'true'))
     strategy:
       runOnce:
         deploy:
@@ -179,6 +183,7 @@ stages:
       #microsoftAppId: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppId'] ]
       #microsoftAppPassword: $[ dependencies.Deploy_Terraform_Templates.outputs['Deploy_Terraform_Templates.Terraform_Apply.microsoftAppPassword'] ]
     displayName: 'deploy helm chart into aks'
+    condition: and(succeeded(), eq(variables['deployContainer'], 'true'))
     steps:
     - checkout: none
     - task: HelmInstaller@1
