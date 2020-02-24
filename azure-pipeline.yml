@@ -14,12 +14,12 @@ variables:
   helmVersion: 3.1.1
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
-  terraformVersion: 0.12.20
+  terraformVersion: 0.12.21
   tfPlanArtifactName: 'tf-plan'
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
   hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
-  nginxIngressVersion: 0.29.0
+  nginxIngressVersion: 0.30.0
   # Additional variables needed to be defined in the Azure Pipeline definition:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
