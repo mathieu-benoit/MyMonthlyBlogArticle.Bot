@@ -14,7 +14,7 @@ variables:
   helmVersion: 3.1.1
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
-  terraformVersion: 0.12.22
+  terraformVersion: 0.12.23
   tfPlanArtifactName: 'tf-plan'
   helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
@@ -25,8 +25,8 @@ variables:
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
 
 pool:
-  name: myadoagent
-  #imageName: ubuntu-latest
+  #name: myadoagent
+  imageName: ubuntu-latest
 
 stages:
 - stage: 'Build'
