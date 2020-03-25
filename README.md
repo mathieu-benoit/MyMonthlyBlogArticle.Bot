@@ -40,9 +40,8 @@ You could now expose your Docker image in a Container registry, with the command
 As a prerequisities, you need to install `cert-manager`:
 ```
 # Install cert-manager
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.13/deploy/manifests/00-crds.yaml
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.14.0/cert-manager.crds.yaml
 kubectl create namespace cert-manager
-kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 helm upgrade \
