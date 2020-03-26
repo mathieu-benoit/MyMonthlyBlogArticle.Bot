@@ -25,7 +25,7 @@ variables:
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
 
 pool:
-  name: myadoagent
+  name: mabenoittest9578
   #imageName: ubuntu-latest
 
 stages:
