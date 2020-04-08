@@ -49,7 +49,7 @@ helm upgrade \
     jetstack/cert-manager \
     --install \
     -n cert-manager \
-    --version v0.14.1
+    --version v0.14.2
 ```
 
 You could then run the `helm upgrade` command below against your Kuberentes cluster:
