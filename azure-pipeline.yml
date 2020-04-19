@@ -97,6 +97,7 @@ stages:
             $(registryServerName) \
             -u $(registryLogin) \
             --password-stdin
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'docker login'
     - bash: |
         docker push $(registryServerName)/$(projectName):$(imageTag)
