@@ -97,10 +97,12 @@ stages:
             $(registryServerName) \
             -u $(registryLogin) \
             --password-stdin
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'docker login'
     - bash: |
         docker push $(registryServerName)/$(projectName):$(imageTag)
       failOnStderr: true
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'docker push'
   - job: 'Package_Helm_Chart'
     variables:
@@ -133,10 +135,12 @@ stages:
         echo $(jq -n --arg version "$(helmChartVersion)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
       failOnStderr: true
       name: helmPush
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'az acr helm push'
     - publish: $(build.artifactStagingDirectory)
       artifact: $(helmChartVersionArtifactName)
 - stage: 'Release'
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   displayName: 'Release'
   jobs:
   - deployment: Deploy_Terraform_Templates
