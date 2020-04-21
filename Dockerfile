@@ -21,6 +21,7 @@ RUN dotnet publish -c Release -o out --no-restore
 # Runtime image
 # https://mcr.microsoft.com/v2/dotnet/core/aspnet/tags/list
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.3-alpine
+ENV ASPNETCORE_URLS=http://+:5000
 WORKDIR /app
 COPY --from=publish /app/src/out .
 ENTRYPOINT ["dotnet", "MyMonthlyBlogArticle.Bot.dll"]

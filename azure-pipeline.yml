@@ -134,8 +134,8 @@ stages:
             $chartPackage
         echo $(jq -n --arg version "$(helmChartVersion)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
       failOnStderr: true
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       name: helmPush
+      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'az acr helm push'
     - publish: $(build.artifactStagingDirectory)
       artifact: $(helmChartVersionArtifactName)
