@@ -16,10 +16,11 @@ variables:
   projectName: mymonthlyblogarticlebot
   terraformVersion: 0.12.24
   tfPlanArtifactName: 'tf-plan'
-  helmChartVersionArtifactName: 'helm-chart-version'
   location: eastus
   hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
   nginxIngressVersion: 0.30.0
+  helmChartVersion: $(build.buildId)
+  skipComponentGovernanceDetection: true
   # Additional variables needed to be defined in the Azure Pipeline definition:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
@@ -33,8 +34,6 @@ stages:
   displayName: 'Build'
   jobs:
   - job: 'Package_Terraform_Templates'
-    variables:
-      imageTag: $(build.buildId)
     displayName: 'package and expose terraform templates'
     condition: and(succeeded(), eq(variables['deployInfrastucture'], 'true'))
     steps:
@@ -107,7 +106,6 @@ stages:
   - job: 'Package_Helm_Chart'
     variables:
       imageTag: $(build.buildId)
-      helmChartVersion: $(build.buildId)
     displayName: 'package and push helm chart'
     condition: and(succeeded(), eq(variables['deployContainer'], 'true'))
     steps:
@@ -126,19 +124,16 @@ stages:
       displayName: 'helm package'
     - bash: |
         cd chart/
-        chartPackage=$(ls $(projectName)-*.tgz)
+        chartPackage=$(ls $(projectName)-$(helmChartVersion).tgz)
         az acr helm push \
             -n $(registryName) \
             -u $(registryLogin) \
             -p $(registryPassword) \
             $chartPackage
-        echo $(jq -n --arg version "$(helmChartVersion)" '{helmChartVersion: $version}') > $(build.artifactStagingDirectory)/variables.json
       failOnStderr: true
       name: helmPush
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       displayName: 'az acr helm push'
-    - publish: $(build.artifactStagingDirectory)
-      artifact: $(helmChartVersionArtifactName)
 - stage: 'Release'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   displayName: 'Release'
@@ -191,8 +186,6 @@ stages:
       displayName: 'install helm'
       inputs:
         helmVersionToInstall: $(helmVersion)
-    - download: current
-      artifact: $(helmChartVersionArtifactName)
     - bash: |
         az login \
             --service-principal \
@@ -207,13 +200,12 @@ stages:
             https://$(registryServerName)/helm/v1/repo \
             --username $(registryLogin) \
             --password $(registryPassword)
-        helmChartVersion=$(jq .helmChartVersion $(pipeline.workspace)/$(helmChartVersionArtifactName)/variables.json -r)
         helm upgrade \
             --namespace $(k8sNamespace) \
             --create-namespace \
             --install \
             --wait \
-            --version $helmChartVersion \
+            --version $(helmChartVersion) \
             --set image.repository=$(registryServerName)/$(projectName) \
             --set image.env.microsoftAppId=$(microsoftAppId) \
             --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
