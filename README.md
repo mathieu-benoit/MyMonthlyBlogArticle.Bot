@@ -37,20 +37,7 @@ You could now expose your Docker image in a Container registry, with the command
 
 ## Deploy with Helm
 
-As a prerequisities, you need to install `cert-manager`:
-```
-# Install cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.14.3/cert-manager.crds.yaml
-kubectl create namespace cert-manager
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-helm upgrade \
-    cert-manager \
-    jetstack/cert-manager \
-    --install \
-    -n cert-manager \
-    --version v0.14.3
-```
+As a prerequisities, you need to install [`cert-manager`](https://hub.helm.sh/charts/jetstack/cert-manager).
 
 You could then run the `helm upgrade` command below against your Kuberentes cluster:
 
@@ -61,13 +48,12 @@ dnsName=<custom-dns-name>
 hostName=$dnsName.eastus.cloudapp.azure.com # could depend on your DNS, in my case that's the DNS on the Azure IP Address hosted in EastUS.
 issuerEmail=<your-email-for-certificate>
 
-kubectl create namespace $k8sNamespace
-
 # Install MyMonthlyBlogArticle.Bot
 cd chart
 helm dependencies update
 helm upgrade \
     --namespace $k8sNamespace \
+    --create-namespace \
     --install \
     --wait \
     --set image.repository=$registryName/$botName \
