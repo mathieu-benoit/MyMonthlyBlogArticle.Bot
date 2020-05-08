@@ -11,7 +11,7 @@ trigger:
 pr: none
 
 variables:
-  helmVersion: 3.2.0
+  helmVersion: 3.2.1
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
   terraformVersion: 0.12.24
