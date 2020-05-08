@@ -16,7 +16,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: {{ include "mymonthlyblogarticlebot.name" . }}
+      app.kubernetes.io/name: {{ include "mymonthlyblogarticlebot.name" . }}
   policyTypes:
   - Ingress
   - Egress
@@ -24,7 +24,7 @@ spec:
   - from:
     - podSelector:
         matchLabels:
-          app: nginx-ingress
+          app.kubernetes.io/name: ingress-nginx
     ports:
      - port: {{ .Values.image.port }}
        protocol: TCP
@@ -38,7 +38,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: nginx-ingress
+      app.kubernetes.io/name: ingress-nginx
   policyTypes:
   - Ingress
   - Egress
@@ -51,7 +51,7 @@ spec:
   - to:
     - podSelector:
         matchLabels:
-          app: {{ include "mymonthlyblogarticlebot.name" . }}
+          app.kubernetes.io/name: {{ include "mymonthlyblogarticlebot.name" . }}
     ports:
      - port: {{ .Values.image.port }}
        protocol: TCP
