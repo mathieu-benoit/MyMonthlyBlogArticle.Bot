@@ -24,4 +24,4 @@ dependencies:
   - name: ingress-nginx
     version: 2.1.0
     repository: https://kubernetes.github.io/ingress-nginx
-    condition: nginx-ingress.enabled
+    condition: ingress-nginx.enabled
