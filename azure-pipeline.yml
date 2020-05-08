@@ -204,6 +204,7 @@ stages:
             --namespace $(k8sNamespace) \
             --create-namespace \
             --install \
+            --history-max 1 \
             --wait \
             --version $(helmChartVersion) \
             --set image.repository=$(registryServerName)/$(projectName) \
