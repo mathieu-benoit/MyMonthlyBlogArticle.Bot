@@ -14,6 +14,7 @@ variables:
   helmVersion: 3.2.1
   registryServerName: '$(registryName).azurecr.io'
   projectName: mymonthlyblogarticlebot
+  chartName: $(registryServerName)/helm/$(projectName)
   terraformVersion: 0.12.24
   tfPlanArtifactName: 'tf-plan'
   location: eastus
@@ -115,7 +116,7 @@ stages:
         helmVersionToInstall: $(helmVersion)
     - bash: |
         cd chart/
-        rm *.tgz
+        export HELM_EXPERIMENTAL_OCI=1
         helm package \
             --dependency-update \
             --version $(helmChartVersion) \
@@ -126,15 +127,20 @@ stages:
     - bash: |
         cd chart/
         chartPackage=$(ls $(projectName)-$(helmChartVersion).tgz)
-        az acr helm push \
-            -n $(registryName) \
+        export HELM_EXPERIMENTAL_OCI=1
+        helm chart save $chartPackage $(chartName)
+        echo $(registryPassword) | helm registry login \
+            $(registryServerName) \
             -u $(registryLogin) \
-            -p $(registryPassword) \
-            $chartPackage
+            --password-stdin
+        helm chart push $(chartName):$(helmChartVersion)
+        # cleanup
+        helm chart remove $(chartName):$(helmChartVersion)
+        rm *.tgz
       failOnStderr: true
       name: helmPush
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-      displayName: 'az acr helm push'
+      displayName: 'helm push'
 - stage: 'Release'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   displayName: 'Release'
@@ -196,18 +202,19 @@ stages:
         az aks get-credentials \
             -n $(aksName) \
             -g $(aksResourceGroupName)
-        helm repo add \
-            $(registryName) \
-            https://$(registryServerName)/helm/v1/repo \
-            --username $(registryLogin) \
-            --password $(registryPassword)
+        export HELM_EXPERIMENTAL_OCI=1
+        echo $(registryPassword) | helm registry login \
+            $(registryServerName) \
+            -u $(registryLogin) \
+            --password-stdin
+        helm chart pull $(chartName):$(helmChartVersion)
+        helm chart export $(chartName):$(helmChartVersion) --destination ./install
         helm upgrade \
             --namespace $(k8sNamespace) \
             --create-namespace \
             --install \
             --history-max 1 \
             --wait \
-            --version $(helmChartVersion) \
             --set image.repository=$(registryServerName)/$(projectName) \
             --set image.env.microsoftAppId=$(microsoftAppId) \
             --set image.env.microsoftAppPassword=$(microsoftAppPassword) \
@@ -223,6 +230,9 @@ stages:
             --set ingress-nginx.controller.image.tag=$(nginxIngressVersion) \
             --set ingress-nginx.controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsName) \
             $(projectName) \
-            $(registryName)/$(projectName)
+            ./install/$(projectName)
+        # cleanup
+        rm -r ./install
+        helm chart remove $(chartName):$(helmChartVersion)
       failOnStderr: true
       displayName: 'deploy helm chart'
