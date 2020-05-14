@@ -27,7 +27,7 @@ variables:
   # For Release/CD stage: registryName, registryLogin, registryPassword, aksName, aksRgName, aksLocation, aksSpId, aksSpSecret and aksSpTenantId.
 
 pool:
-  name: mabenoittest9459
+  name: mabenoittesttf
   #imageName: ubuntu-latest
 
 stages:
@@ -93,7 +93,7 @@ stages:
       failOnStderr: true
       displayName: 'docker build'
     - bash: |
-        echo $(registryPassword) | docker login \
+        echo '$(registryPassword)' | docker login \
             $(registryServerName) \
             -u $(registryLogin) \
             --password-stdin
@@ -129,7 +129,7 @@ stages:
         chartPackage=$(ls $(projectName)-$(helmChartVersion).tgz)
         export HELM_EXPERIMENTAL_OCI=1
         helm chart save $chartPackage $(chartName)
-        echo $(registryPassword) | helm registry login \
+        echo '$(registryPassword)' | helm registry login \
             $(registryServerName) \
             -u $(registryLogin) \
             --password-stdin
