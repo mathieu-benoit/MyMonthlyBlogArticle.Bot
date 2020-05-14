@@ -179,6 +179,7 @@ stages:
                 ARM_CLIENT_SECRET: $(tfClientSecret)
                 ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
   - job: Deploy_Helm_Chart
+    ${{ if eq(variables['deployInfrastucture'], 'true') }}:
     dependsOn: Deploy_Terraform_Templates
     variables:
       k8sNamespace: $(projectName)
