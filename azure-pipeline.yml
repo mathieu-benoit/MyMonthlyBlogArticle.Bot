@@ -197,13 +197,13 @@ stages:
         az login \
             --service-principal \
             -u $(aksSpId) \
-            -p $(aksSpSecret) \
+            -p '$(aksSpSecret)' \
             --tenant $(aksSpTenantId)
         az aks get-credentials \
             -n $(aksName) \
             -g $(aksResourceGroupName)
         export HELM_EXPERIMENTAL_OCI=1
-        echo $(registryPassword) | helm registry login \
+        echo '$(registryPassword)' | helm registry login \
             $(registryServerName) \
             -u $(registryLogin) \
             --password-stdin
