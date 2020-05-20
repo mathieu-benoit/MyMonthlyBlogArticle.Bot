@@ -20,7 +20,7 @@ variables:
   location: eastus
   hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
   nginxIngressVersion: 0.32.0
-  helmChartVersion: $(build.buildId)
+  helmChartVersion: v$(build.buildId)
   skipComponentGovernanceDetection: true
   # Additional variables needed to be defined in the Azure Pipeline definition:
   # For Build/CI stage: registryName, registryLogin and registryPassword.
