@@ -1,6 +1,6 @@
 # Temporary Build image
 # https://mcr.microsoft.com/v2/dotnet/core/sdk/tags/list
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.202-alpine AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.301-alpine AS build
 WORKDIR /app
 COPY *.sln .
 COPY src/*.csproj ./src/
@@ -20,7 +20,7 @@ RUN dotnet publish -c Release -o out --no-restore
 
 # Runtime image
 # https://mcr.microsoft.com/v2/dotnet/core/aspnet/tags/list
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.4-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.5-alpine
 ENV ASPNETCORE_URLS=http://+:5000
 WORKDIR /app
 COPY --from=publish /app/src/out .
