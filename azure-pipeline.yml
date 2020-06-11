@@ -19,7 +19,7 @@ variables:
   tfPlanArtifactName: 'tf-plan'
   location: eastus
   hostName: $(dnsName).$(aksLocation).cloudapp.azure.com
-  nginxIngressVersion: 0.32.0
+  nginxIngressVersion: 0.33.0
   helmChartVersion: v$(build.buildId)
   skipComponentGovernanceDetection: true
   # Additional variables needed to be defined in the Azure Pipeline definition:
