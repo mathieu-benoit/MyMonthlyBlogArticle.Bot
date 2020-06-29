@@ -22,6 +22,8 @@ RUN dotnet publish -c Release -o out --no-restore
 # https://mcr.microsoft.com/v2/dotnet/core/aspnet/tags/list
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.5-alpine
 ENV ASPNETCORE_URLS=http://+:5000
+# OPT OUT OF Diagnostic pipeline so we can run readonly.
+ENV COMPlus_EnableDiagnostics=0
 WORKDIR /app
 COPY --from=publish /app/src/out .
 ENTRYPOINT ["dotnet", "MyMonthlyBlogArticle.Bot.dll"]
