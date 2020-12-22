@@ -2,7 +2,7 @@
 
 # MyMonthlyBlogArticle.Bot
 
-This repository contains all the code and deployment scripts related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html) created on April 2018. This repository got actually updated with a more Cloud Native App approach by leveraging associated latest and greatest technologies and features such as Docker, ASP.NET Core 3.1, Helm 3, Kubernetes and Terraform, check this entire story here: [My Bot just got powered by .NET Core 3.1, Docker, Kubernetes and Terraform](https://alwaysupalwayson.blogspot.com/2019/12/my-bot-just-got-powered-by-net-core-31.html).
+This repository contains all the code and deployment scripts related to this project: [My monthly "Azure News & Updates" blog article got a Bot!](https://alwaysupalwayson.blogspot.com/2018/04/my-monthly-azure-news-updates-blog.html) created on April 2018. This repository got actually updated with a more Cloud Native App approach by leveraging associated latest and greatest technologies and features such as Docker, ASP.NET Core 3.1, Helm 3, Kubernetes and Terraform, check this entire story here: [My Bot just got powered by .NET Core 3.1, Docker, Kubernetes and Terraform](https://alwaysupalwayson.com/cloud-native-bot-app/).
 
 ![Flow & Architecture diagram](./FlowAndArchitecture.PNG "Flow & Architecture diagram")
 
